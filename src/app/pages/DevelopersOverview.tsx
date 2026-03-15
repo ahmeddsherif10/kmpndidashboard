@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Building2, Buildings, MapPin, Home, Users, Car, TrendingUp, ChevronRight, Plus, ChevronDown, X } from 'lucide-react';
+import { Search, Building2, Building, MapPin, Home, Users, Car, TrendingUp, ChevronRight, Plus, ChevronDown, X } from 'lucide-react';
 
 const PROPERTY_DEVELOPERS = {
   'Palm Hills': {
@@ -160,7 +160,7 @@ export function DevelopersOverview() {
                 className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left"
                 style={{ fontSize: 13, color: '#374151' }}
               >
-                <Buildings size={16} color="#1B4FD8" strokeWidth={1.5} />
+                <Building size={16} color="#1B4FD8" strokeWidth={1.5} />
                 <div>
                   <p style={{ fontWeight: 500, color: '#111827' }}>Add Developer</p>
                   <p style={{ fontSize: 11, color: '#6B7280' }}>New property developer</p>
@@ -363,7 +363,7 @@ export function DevelopersOverview() {
             <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: '#E5E7EB' }}>
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-[8px]" style={{ background: '#EEF2FF' }}>
-                  <Buildings size={20} color="#1B4FD8" strokeWidth={1.5} />
+                  <Building size={20} color="#1B4FD8" strokeWidth={1.5} />
                 </div>
                 <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 18, fontWeight: 600, color: '#111827' }}>
                   Add New Developer

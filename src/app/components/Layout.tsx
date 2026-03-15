@@ -3,7 +3,7 @@ import { useState } from 'react';
 import {
   LayoutDashboard,
   Building2,
-  Buildings,
+  Building,
   SquareParking,
   Car,
   ShieldCheck,
@@ -23,7 +23,7 @@ import {
 
 const NAV_ITEMS = [
   { label: 'Overview', icon: LayoutDashboard, path: '/', end: true },
-  { label: 'Developers & Compounds', icon: Buildings, path: '/developers' },
+  { label: 'Developers & Compounds', icon: Building, path: '/developers' },
   { label: 'Units & Residents', icon: Building2, path: '/units' },
   { label: 'Parking Management', icon: SquareParking, path: '/parking' },
   { label: 'Vehicle Registry', icon: Car, path: '/vehicles' },

@@ -7,7 +7,8 @@ import { ParkingManagement } from './pages/ParkingManagement';
 import { VehicleRegistry } from './pages/VehicleRegistry';
 import { AccessControl } from './pages/AccessControl';
 import { VisitorRules } from './pages/VisitorRules';
-import { AccountManagement } from './pages/AccountManagement';
+import { StaffManagement } from './pages/StaffManagement';
+import { Announcements } from './pages/Announcements';
 import { Hardware } from './pages/Hardware';
 import { Reports } from './pages/Reports';
 import { AuditLogs } from './pages/AuditLogs';
@@ -25,7 +26,8 @@ export const router = createBrowserRouter([
       { path: 'vehicles', Component: VehicleRegistry },
       { path: 'access', Component: AccessControl },
       { path: 'visitor-rules', Component: VisitorRules },
-      { path: 'accounts', Component: AccountManagement },
+      { path: 'staff', Component: StaffManagement },
+      { path: 'announcements', Component: Announcements },
       { path: 'hardware', Component: Hardware },
       { path: 'reports', Component: Reports },
       { path: 'audit-logs', Component: AuditLogs },

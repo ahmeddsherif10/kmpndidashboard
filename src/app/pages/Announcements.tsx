@@ -279,7 +279,7 @@ export function Announcements() {
 
       {/* Create Announcement Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-50">
           <div
             className="rounded-[12px] w-full max-w-2xl overflow-hidden"
             style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', maxHeight: '90vh' }}
@@ -352,9 +352,8 @@ export function Announcements() {
                       className="w-full px-3 py-2 rounded-[6px] outline-none focus:ring-2 focus:ring-blue-500"
                       style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }}
                     >
-                      <option>All Residents</option>
-                      <option>Specific Compounds</option>
-                      <option>Specific Units</option>
+                      <option>Residents</option>
+                      <option>Staff</option>
                     </select>
                   </div>
                 </div>
@@ -368,12 +367,15 @@ export function Announcements() {
                     className="w-full px-3 py-2 rounded-[6px] outline-none focus:ring-2 focus:ring-blue-500"
                     style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827', minHeight: 100 }}
                   >
+                    <option>All Compounds</option>
                     <option>Palm Hills Katameya</option>
                     <option>Palm Hills October</option>
                     <option>Sodic West</option>
                     <option>Sodic East</option>
                     <option>Hyde Park</option>
                     <option>Hyde Park New Cairo</option>
+                    <option>New Zayed Phase II</option>
+                    <option>New Zayed Phase III</option>
                   </select>
                   <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 4 }}>
                     Hold Ctrl/Cmd to select multiple compounds
@@ -431,7 +433,7 @@ export function Announcements() {
 
       {/* View Announcement Modal */}
       {selectedAnnouncement && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-50">
           <div
             className="rounded-[12px] w-full max-w-2xl overflow-hidden"
             style={{ background: '#FFFFFF', border: '1px solid #E5E7EB' }}

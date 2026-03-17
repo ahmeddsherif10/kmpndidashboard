@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Building2, Building, MapPin, Home, Users, Car, TrendingUp, ChevronRight, Plus, ChevronDown, X } from 'lucide-react';
+import { Search, Building2, Building, MapPin, Home, Users, Car, TrendingUp, ChevronRight, Plus, X } from 'lucide-react';
 
 const PROPERTY_DEVELOPERS = {
   'Palm Hills': {
@@ -111,9 +111,7 @@ const PROPERTY_DEVELOPERS = {
 export function DevelopersOverview() {
   const [search, setSearch] = useState('');
   const [selectedDeveloper, setSelectedDeveloper] = useState<string | null>(null);
-  const [addDropdownOpen, setAddDropdownOpen] = useState(false);
   const [showAddDeveloperModal, setShowAddDeveloperModal] = useState(false);
-  const [showAddCompoundModal, setShowAddCompoundModal] = useState(false);
 
   const developers = Object.keys(PROPERTY_DEVELOPERS);
   const totalCompounds = developers.reduce((sum, dev) => sum + PROPERTY_DEVELOPERS[dev as keyof typeof PROPERTY_DEVELOPERS].totalCompounds, 0);
@@ -128,58 +126,25 @@ export function DevelopersOverview() {
   });
 
   return (
-    <div className="p-6 max-w-[1376px] mx-auto" onClick={() => setAddDropdownOpen(false)}>
+    <div className="p-6 max-w-[1376px] mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
           <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: 20, fontWeight: 700, color: '#111827' }}>
-            Developers & Compounds
+            Property Developers
           </h1>
           <p style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>
             {developers.length} developers · {totalCompounds} compounds · {totalUnits} total units
           </p>
         </div>
-        <div className="relative" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={() => setAddDropdownOpen(!addDropdownOpen)}
-            className="flex items-center gap-2 px-4 py-2 rounded-[6px] text-white transition-opacity hover:opacity-90"
-            style={{ background: '#1B4FD8', fontSize: 13, fontWeight: 500 }}
-          >
-            <Plus size={16} strokeWidth={2} />
-            Add New
-            <ChevronDown size={14} strokeWidth={2} />
-          </button>
-          {addDropdownOpen && (
-            <div
-              className="absolute right-0 top-full mt-2 rounded-[8px] shadow-lg z-50 overflow-hidden"
-              style={{ width: 220, background: '#FFFFFF', border: '1px solid #E5E7EB' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => { setShowAddDeveloperModal(true); setAddDropdownOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left"
-                style={{ fontSize: 13, color: '#374151' }}
-              >
-                <Building size={16} color="#1B4FD8" strokeWidth={1.5} />
-                <div>
-                  <p style={{ fontWeight: 500, color: '#111827' }}>Add Developer</p>
-                  <p style={{ fontSize: 11, color: '#6B7280' }}>New property developer</p>
-                </div>
-              </button>
-              <button
-                onClick={() => { setShowAddCompoundModal(true); setAddDropdownOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left border-t"
-                style={{ fontSize: 13, color: '#374151', borderColor: '#F3F4F6' }}
-              >
-                <MapPin size={16} color="#10B981" strokeWidth={1.5} />
-                <div>
-                  <p style={{ fontWeight: 500, color: '#111827' }}>Add Compound</p>
-                  <p style={{ fontSize: 11, color: '#6B7280' }}>Add to existing developer</p>
-                </div>
-              </button>
-            </div>
-          )}
-        </div>
+        <button
+          onClick={() => setShowAddDeveloperModal(true)}
+          className="flex items-center gap-2 px-4 py-2 rounded-[6px] text-white transition-opacity hover:opacity-90"
+          style={{ background: '#1B4FD8', fontSize: 13, fontWeight: 500 }}
+        >
+          <Plus size={16} strokeWidth={2} />
+          Add Developer
+        </button>
       </div>
 
       {/* Stats Cards */}
@@ -355,7 +320,7 @@ export function DevelopersOverview() {
 
       {/* Add Developer Modal */}
       {showAddDeveloperModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-50">
           <div
             className="rounded-[12px] w-full max-w-lg overflow-hidden"
             style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', maxHeight: '90vh' }}
@@ -474,146 +439,6 @@ export function DevelopersOverview() {
         </div>
       )}
 
-      {/* Add Compound Modal */}
-      {showAddCompoundModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
-          <div
-            className="rounded-[12px] w-full max-w-lg overflow-hidden"
-            style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', maxHeight: '90vh' }}
-          >
-            <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: '#E5E7EB' }}>
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-[8px]" style={{ background: '#DCFCE7' }}>
-                  <MapPin size={20} color="#10B981" strokeWidth={1.5} />
-                </div>
-                <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 18, fontWeight: 600, color: '#111827' }}>
-                  Add New Compound
-                </h2>
-              </div>
-              <button
-                onClick={() => setShowAddCompoundModal(false)}
-                className="p-1 rounded-[6px] hover:bg-gray-100 transition-colors"
-              >
-                <X size={18} color="#6B7280" />
-              </button>
-            </div>
-
-            <div className="px-6 py-5 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 140px)' }}>
-              <div className="space-y-4">
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
-                    Property Developer *
-                  </label>
-                  <select
-                    className="w-full px-3 py-2 rounded-[6px] outline-none focus:ring-2 focus:ring-blue-500"
-                    style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }}
-                  >
-                    <option value="">Select a developer</option>
-                    {developers.map((dev) => (
-                      <option key={dev} value={dev}>{dev}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
-                    Compound Name *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., Palm Hills Katameya Extension"
-                    className="w-full px-3 py-2 rounded-[6px] outline-none focus:ring-2 focus:ring-blue-500"
-                    style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
-                    Location *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., New Cairo"
-                    className="w-full px-3 py-2 rounded-[6px] outline-none focus:ring-2 focus:ring-blue-500"
-                    style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
-                      Total Units *
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="e.g., 450"
-                      className="w-full px-3 py-2 rounded-[6px] outline-none focus:ring-2 focus:ring-blue-500"
-                      style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
-                      Parking Slots
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="e.g., 890"
-                      className="w-full px-3 py-2 rounded-[6px] outline-none focus:ring-2 focus:ring-blue-500"
-                      style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
-                    Status *
-                  </label>
-                  <select
-                    className="w-full px-3 py-2 rounded-[6px] outline-none focus:ring-2 focus:ring-blue-500"
-                    style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }}
-                  >
-                    <option value="active">Active</option>
-                    <option value="construction">Under Construction</option>
-                    <option value="planning">Planning</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
-                    Description
-                  </label>
-                  <textarea
-                    placeholder="Brief description of the compound..."
-                    rows={3}
-                    className="w-full px-3 py-2 rounded-[6px] outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                    style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t" style={{ borderColor: '#E5E7EB' }}>
-              <button
-                onClick={() => setShowAddCompoundModal(false)}
-                className="px-4 py-2 rounded-[8px] transition-colors hover:bg-gray-100"
-                style={{ fontSize: 14, fontWeight: 500, color: '#374151' }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  alert('Compound created successfully! In a real application, this would save to your database.');
-                  setShowAddCompoundModal(false);
-                }}
-                className="px-4 py-2 rounded-[8px] transition-colors hover:opacity-90"
-                style={{ background: '#10B981', color: '#FFFFFF', fontSize: 14, fontWeight: 500 }}
-              >
-                Add Compound
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

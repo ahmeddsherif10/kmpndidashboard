@@ -7,6 +7,7 @@ type GateNode = {
   location: string;
   zone: string;
   enabled: boolean;
+  allDay: boolean;
   rules: { residents: boolean; visitors: boolean; delivery: boolean };
   hours: { from: string; to: string };
   hardware: { type: string; id: string }[];
@@ -19,7 +20,7 @@ const ZONES = [
     gates: [
       {
         id: 'gate-a1', name: 'Main Gate', location: 'North Entrance', zone: 'Zone A',
-        enabled: true,
+        enabled: true, allDay: false,
         rules: { residents: true, visitors: true, delivery: true },
         hours: { from: '06:00', to: '23:00' },
         hardware: [
@@ -30,7 +31,7 @@ const ZONES = [
       },
       {
         id: 'gate-a2', name: 'Side Gate A', location: 'East Wing', zone: 'Zone A',
-        enabled: true,
+        enabled: true, allDay: false,
         rules: { residents: true, visitors: false, delivery: false },
         hours: { from: '07:00', to: '22:00' },
         hardware: [
@@ -46,7 +47,7 @@ const ZONES = [
     gates: [
       {
         id: 'gate-b1', name: 'Pool Gate', location: 'Club Entry', zone: 'Zone B',
-        enabled: true,
+        enabled: true, allDay: false,
         rules: { residents: true, visitors: true, delivery: false },
         hours: { from: '08:00', to: '20:00' },
         hardware: [
@@ -56,7 +57,7 @@ const ZONES = [
       },
       {
         id: 'gate-b2', name: 'Service Gate B', location: 'South Back', zone: 'Zone B',
-        enabled: false,
+        enabled: false, allDay: false,
         rules: { residents: false, visitors: false, delivery: true },
         hours: { from: '09:00', to: '17:00' },
         hardware: [
@@ -72,7 +73,7 @@ const ZONES = [
     gates: [
       {
         id: 'gate-s1', name: 'Delivery Entrance', location: 'West Street', zone: 'Street',
-        enabled: true,
+        enabled: true, allDay: false,
         rules: { residents: false, visitors: false, delivery: true },
         hours: { from: '07:00', to: '21:00' },
         hardware: [
@@ -97,17 +98,11 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
     <button
       onClick={() => onChange(!checked)}
       className="relative rounded-full transition-colors flex-shrink-0"
-      style={{
-        width: 36, height: 20,
-        background: checked ? '#1B4FD8' : '#D1D5DB',
-      }}
+      style={{ width: 36, height: 20, background: checked ? '#1B4FD8' : '#D1D5DB' }}
     >
       <span
         className="absolute rounded-full bg-white transition-all shadow"
-        style={{
-          width: 14, height: 14,
-          top: 3, left: checked ? 19 : 3,
-        }}
+        style={{ width: 14, height: 14, top: 3, left: checked ? 19 : 3 }}
       />
     </button>
   );
@@ -129,7 +124,9 @@ export function AccessControl() {
   };
 
   const toggleZone = (id: string) => {
-    setExpandedZones((prev) => prev.includes(id) ? prev.filter((z) => z !== id) : [...prev, id]);
+    setExpandedZones((prev) =>
+      prev.includes(id) ? prev.filter((z) => z !== id) : [...prev, id]
+    );
   };
 
   return (
@@ -155,11 +152,10 @@ export function AccessControl() {
                 className="w-full flex items-center gap-2 px-4 py-3 hover:bg-gray-50 transition-colors border-b"
                 style={{ borderColor: '#F3F4F6' }}
               >
-                {expandedZones.includes(zone.id) ? (
-                  <ChevronDown size={14} color="#9CA3AF" strokeWidth={1.5} />
-                ) : (
-                  <ChevronRight size={14} color="#9CA3AF" strokeWidth={1.5} />
-                )}
+                {expandedZones.includes(zone.id)
+                  ? <ChevronDown size={14} color="#9CA3AF" strokeWidth={1.5} />
+                  : <ChevronRight size={14} color="#9CA3AF" strokeWidth={1.5} />
+                }
                 <span style={{ fontSize: 13, fontWeight: 600, color: '#374151', textAlign: 'left' }}>{zone.name}</span>
               </button>
               {expandedZones.includes(zone.id) && zone.gates.map((g) => {
@@ -170,10 +166,7 @@ export function AccessControl() {
                     key={g.id}
                     onClick={() => setSelectedGate(g)}
                     className="w-full flex items-center gap-3 px-5 py-2.5 transition-colors border-b"
-                    style={{
-                      borderColor: '#F3F4F6',
-                      background: isSelected ? '#EEF2FF' : 'transparent',
-                    }}
+                    style={{ borderColor: '#F3F4F6', background: isSelected ? '#EEF2FF' : 'transparent' }}
                   >
                     {isSelected && <span className="absolute left-0 w-0.5 h-8 rounded-r" style={{ background: '#1B4FD8' }} />}
                     <span
@@ -181,7 +174,14 @@ export function AccessControl() {
                       style={{ width: 7, height: 7, background: gState.enabled ? '#16A34A' : '#DC2626' }}
                     />
                     <div className="text-left">
-                      <p style={{ fontSize: 13, fontWeight: isSelected ? 600 : 400, color: isSelected ? '#1B4FD8' : '#374151' }}>{g.name}</p>
+                      <div className="flex items-center gap-1.5">
+                        <p style={{ fontSize: 13, fontWeight: isSelected ? 600 : 400, color: isSelected ? '#1B4FD8' : '#374151' }}>{g.name}</p>
+                        {gState.allDay && (
+                          <span className="px-1 py-0.5 rounded-[3px]" style={{ fontSize: 9, fontWeight: 700, background: '#DCFCE7', color: '#16A34A', letterSpacing: '0.04em' }}>
+                            24/7
+                          </span>
+                        )}
+                      </div>
                       <p style={{ fontSize: 11, color: '#9CA3AF' }}>{g.location}</p>
                     </div>
                   </button>
@@ -215,8 +215,8 @@ export function AccessControl() {
               <p style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16 }}>Access Rules</p>
               {[
                 { key: 'residents', label: 'Residents', desc: 'Allow registered residents to enter' },
-                { key: 'visitors', label: 'Visitors', desc: 'Allow pre-approved guest passes' },
-                { key: 'delivery', label: 'Deliveries', desc: 'Allow delivery personnel entry' },
+                { key: 'visitors',  label: 'Visitors',  desc: 'Allow pre-approved guest passes' },
+                { key: 'delivery',  label: 'Deliveries', desc: 'Allow delivery personnel entry' },
               ].map(({ key, label, desc }) => (
                 <div key={key} className="flex items-start justify-between py-4 border-b last:border-0" style={{ borderColor: '#F3F4F6' }}>
                   <div>
@@ -235,39 +235,79 @@ export function AccessControl() {
             <div className="flex flex-col gap-6">
               {/* Operating Hours */}
               <div>
-                <p style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16 }}>Operating Hours</p>
-                <div
-                  className="flex items-center gap-3 p-4 rounded-[8px]"
-                  style={{ background: '#F4F5F7', border: '1px solid #E5E7EB' }}
-                >
-                  <div className="flex-1">
-                    <p style={{ fontSize: 11, color: '#6B7280', marginBottom: 4 }}>Open From</p>
-                    <input
-                      type="time"
-                      value={gate.hours.from}
-                      onChange={(e) => updateGate({ hours: { ...gate.hours, from: e.target.value } })}
-                      className="w-full rounded-[4px] px-2 py-1.5 outline-none"
-                      style={{ border: '1px solid #E5E7EB', fontSize: 13, fontFamily: "'JetBrains Mono', monospace", background: '#FFFFFF' }}
+                <div className="flex items-center justify-between mb-4">
+                  <p style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Operating Hours</p>
+                  {/* 24/7 toggle */}
+                  <button
+                    onClick={() => updateGate({ allDay: !gate.allDay })}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-[6px] transition-all"
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: gate.allDay ? '#DCFCE7' : '#F4F5F7',
+                      color: gate.allDay ? '#16A34A' : '#6B7280',
+                      border: gate.allDay ? '1px solid #86EFAC' : '1px solid #E5E7EB',
+                    }}
+                  >
+                    <span
+                      className="rounded-full"
+                      style={{ width: 7, height: 7, background: gate.allDay ? '#16A34A' : '#D1D5DB', flexShrink: 0 }}
                     />
-                  </div>
-                  <span style={{ color: '#9CA3AF', marginTop: 16 }}>—</span>
-                  <div className="flex-1">
-                    <p style={{ fontSize: 11, color: '#6B7280', marginBottom: 4 }}>Close At</p>
-                    <input
-                      type="time"
-                      value={gate.hours.to}
-                      onChange={(e) => updateGate({ hours: { ...gate.hours, to: e.target.value } })}
-                      className="w-full rounded-[4px] px-2 py-1.5 outline-none"
-                      style={{ border: '1px solid #E5E7EB', fontSize: 13, fontFamily: "'JetBrains Mono', monospace", background: '#FFFFFF' }}
-                    />
-                  </div>
+                    24/7 — Always Open
+                  </button>
                 </div>
+
+                {gate.allDay ? (
+                  <div
+                    className="flex items-center gap-3 p-4 rounded-[8px]"
+                    style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}
+                  >
+                    <span
+                      className="rounded-full flex-shrink-0"
+                      style={{ width: 8, height: 8, background: '#16A34A' }}
+                    />
+                    <div>
+                      <p style={{ fontSize: 13, fontWeight: 600, color: '#15803D' }}>Gate operates 24 hours a day, 7 days a week</p>
+                      <p style={{ fontSize: 12, color: '#16A34A', marginTop: 1 }}>No time restrictions apply. Disable 24/7 to set custom hours.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className="flex items-center gap-3 p-4 rounded-[8px]"
+                    style={{ background: '#F4F5F7', border: '1px solid #E5E7EB' }}
+                  >
+                    <div className="flex-1">
+                      <p style={{ fontSize: 11, color: '#6B7280', marginBottom: 4 }}>Open From</p>
+                      <input
+                        type="time"
+                        value={gate.hours.from}
+                        onChange={(e) => updateGate({ hours: { ...gate.hours, from: e.target.value } })}
+                        className="w-full rounded-[4px] px-2 py-1.5 outline-none"
+                        style={{ border: '1px solid #E5E7EB', fontSize: 13, fontFamily: "'JetBrains Mono', monospace", background: '#FFFFFF' }}
+                      />
+                    </div>
+                    <span style={{ color: '#9CA3AF', marginTop: 16 }}>—</span>
+                    <div className="flex-1">
+                      <p style={{ fontSize: 11, color: '#6B7280', marginBottom: 4 }}>Close At</p>
+                      <input
+                        type="time"
+                        value={gate.hours.to}
+                        onChange={(e) => updateGate({ hours: { ...gate.hours, to: e.target.value } })}
+                        className="w-full rounded-[4px] px-2 py-1.5 outline-none"
+                        style={{ border: '1px solid #E5E7EB', fontSize: 13, fontFamily: "'JetBrains Mono', monospace", background: '#FFFFFF' }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Linked Hardware */}
               <div>
                 <p style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16 }}>Linked Hardware</p>
                 <div className="flex flex-wrap gap-2">
+                  {gate.hardware.length === 0 && (
+                    <p style={{ fontSize: 12, color: '#9CA3AF' }}>No hardware linked to this gate.</p>
+                  )}
                   {gate.hardware.map((hw, i) => {
                     const HwIcon = HARDWARE_ICON[hw.type] || Cpu;
                     return (
@@ -294,6 +334,7 @@ export function AccessControl() {
                   Save Changes
                 </button>
                 <button
+                  onClick={() => updateGate({ enabled: !gate.enabled })}
                   className="flex items-center gap-2 px-4 py-2 rounded-[6px] transition-colors hover:bg-red-50"
                   style={{ border: '1px solid #FCA5A5', color: '#DC2626', fontSize: 13, fontWeight: 500 }}
                 >

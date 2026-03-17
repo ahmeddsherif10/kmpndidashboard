@@ -1,6 +1,11 @@
 import { RouterProvider } from 'react-router';
 import { router } from './routes';
+import { CompoundProvider } from './context/CompoundContext';
 
 export default function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <CompoundProvider>
+      <RouterProvider router={router} />
+    </CompoundProvider>
+  );
 }

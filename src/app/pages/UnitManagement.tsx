@@ -72,68 +72,56 @@ export function UnitManagement() {
           <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: 20, fontWeight: 700, color: '#111827' }}>Unit Management</h1>
           <p style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>{UNITS.length} units registered · Palm Hills Katameya</p>
         </div>
-        <div className="relative" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => setAddDropdownOpen(!addDropdownOpen)}
-            className="flex items-center gap-2 px-4 py-2 rounded-[6px] text-white transition-opacity hover:opacity-90"
-            style={{ background: '#1B4FD8', fontSize: 13, fontWeight: 500 }}
+            onClick={() => setShowImportModal(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-[6px] transition-colors hover:bg-gray-100"
+            style={{ border: '1px solid #E5E7EB', background: '#FFFFFF', fontSize: 13, fontWeight: 500, color: '#374151' }}
           >
-            <Plus size={16} strokeWidth={2} />
-            Add New
-            <ChevronDown size={14} strokeWidth={2} />
+            <FileSpreadsheet size={16} color="#10B981" strokeWidth={1.5} />
+            Import from Excel
           </button>
-          {addDropdownOpen && (
-            <div
-              className="absolute right-0 top-full mt-2 rounded-[8px] shadow-lg z-50 overflow-hidden"
-              style={{ width: 200, background: '#FFFFFF', border: '1px solid #E5E7EB' }}
-              onClick={(e) => e.stopPropagation()}
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setAddDropdownOpen(!addDropdownOpen)}
+              className="flex items-center gap-2 px-4 py-2 rounded-[6px] text-white transition-opacity hover:opacity-90"
+              style={{ background: '#1B4FD8', fontSize: 13, fontWeight: 500 }}
             >
-              <button
-                onClick={() => { setShowAddUnitModal(true); setAddDropdownOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left"
-                style={{ fontSize: 13, color: '#374151' }}
+              <Plus size={16} strokeWidth={2} />
+              Add New
+              <ChevronDown size={14} strokeWidth={2} />
+            </button>
+            {addDropdownOpen && (
+              <div
+                className="absolute right-0 top-full mt-2 rounded-[8px] shadow-lg z-50 overflow-hidden"
+                style={{ width: 200, background: '#FFFFFF', border: '1px solid #E5E7EB' }}
+                onClick={(e) => e.stopPropagation()}
               >
-                <Building size={16} color="#1B4FD8" strokeWidth={1.5} />
-                <div>
-                  <p style={{ fontWeight: 500, color: '#111827' }}>Add Unit</p>
-                  <p style={{ fontSize: 11, color: '#6B7280' }}>Apartment or flat</p>
-                </div>
-              </button>
-              <button
-                onClick={() => { setShowAddVillaModal(true); setAddDropdownOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left border-t"
-                style={{ fontSize: 13, color: '#374151', borderColor: '#F3F4F6' }}
-              >
-                <Home size={16} color="#1B4FD8" strokeWidth={1.5} />
-                <div>
-                  <p style={{ fontWeight: 500, color: '#111827' }}>Add Villa</p>
-                  <p style={{ fontSize: 11, color: '#6B7280' }}>Standalone house</p>
-                </div>
-              </button>
-              <button
-                onClick={() => { setShowAddBuildingModal(true); setAddDropdownOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left border-t"
-                style={{ fontSize: 13, color: '#374151', borderColor: '#F3F4F6' }}
-              >
-                <Building size={16} color="#1B4FD8" strokeWidth={1.5} />
-                <div>
-                  <p style={{ fontWeight: 500, color: '#111827' }}>Add Building</p>
-                  <p style={{ fontSize: 11, color: '#6B7280' }}>Multi-unit structure</p>
-                </div>
-              </button>
-              <button
-                onClick={() => { setShowImportModal(true); setAddDropdownOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-green-50 transition-colors text-left border-t"
-                style={{ fontSize: 13, color: '#374151', borderColor: '#F3F4F6' }}
-              >
-                <FileSpreadsheet size={16} color="#10B981" strokeWidth={1.5} />
-                <div>
-                  <p style={{ fontWeight: 500, color: '#111827' }}>Import from Excel</p>
-                  <p style={{ fontSize: 11, color: '#6B7280' }}>Bulk upload units</p>
-                </div>
-              </button>
-            </div>
-          )}
+                <button
+                  onClick={() => { setShowAddVillaModal(true); setAddDropdownOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left"
+                  style={{ fontSize: 13, color: '#374151' }}
+                >
+                  <Home size={16} color="#1B4FD8" strokeWidth={1.5} />
+                  <div>
+                    <p style={{ fontWeight: 500, color: '#111827' }}>Add Villa</p>
+                    <p style={{ fontSize: 11, color: '#6B7280' }}>Standalone house</p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => { setShowAddBuildingModal(true); setAddDropdownOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left border-t"
+                  style={{ fontSize: 13, color: '#374151', borderColor: '#F3F4F6' }}
+                >
+                  <Building size={16} color="#1B4FD8" strokeWidth={1.5} />
+                  <div>
+                    <p style={{ fontWeight: 500, color: '#111827' }}>Add Building</p>
+                    <p style={{ fontSize: 11, color: '#6B7280' }}>Multi-unit structure</p>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -458,7 +446,7 @@ export function UnitManagement() {
 
       {/* Add Unit Modal */}
       {showAddUnitModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-50">
           <div
             className="rounded-[12px] w-full max-w-lg overflow-hidden"
             style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', maxHeight: '90vh' }}
@@ -620,7 +608,7 @@ export function UnitManagement() {
 
       {/* Add Villa Modal */}
       {showAddVillaModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-50">
           <div
             className="rounded-[12px] w-full max-w-lg overflow-hidden"
             style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', maxHeight: '90vh' }}
@@ -763,7 +751,7 @@ export function UnitManagement() {
 
       {/* Add Building Modal */}
       {showAddBuildingModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-50">
           <div
             className="rounded-[12px] w-full max-w-lg overflow-hidden"
             style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', maxHeight: '90vh' }}
@@ -905,7 +893,7 @@ export function UnitManagement() {
 
       {/* Import Excel Modal */}
       {showImportModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-50">
           <div
             className="rounded-[12px] w-full max-w-2xl overflow-hidden"
             style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', maxHeight: '90vh' }}

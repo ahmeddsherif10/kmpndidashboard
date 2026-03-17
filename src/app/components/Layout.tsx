@@ -1,14 +1,19 @@
 import { Outlet, NavLink, useLocation } from 'react-router';
 import { useState } from 'react';
+import type React from 'react';
 import {
-  LayoutDashboard,
   Building2,
   Building,
+  Layers,
   SquareParking,
   Car,
   ShieldCheck,
   UserCheck,
-  HardDrive,
+  Briefcase,
+  Home,
+  Users,
+  UserCog,
+  Ticket,
   BarChart3,
   ClipboardList,
   Settings,
@@ -17,64 +22,79 @@ import {
   ChevronDown,
   ChevronRight,
   LogOut,
-  Users,
   Megaphone,
+  LayoutDashboard,
+  Check,
 } from 'lucide-react';
+import { useCompound, DEVELOPERS, COMPOUNDS_BY_DEVELOPER } from '../context/CompoundContext';
 
-const NAV_ITEMS = [
+type NavItem =
+  | { section: string }
+  | { label: string; icon: React.ElementType; path: string; end?: boolean };
+
+const NAV_ITEMS: NavItem[] = [
   { label: 'Overview', icon: LayoutDashboard, path: '/', end: true },
-  { label: 'Developers & Compounds', icon: Building, path: '/developers' },
-  { label: 'Units & Residents', icon: Building2, path: '/units' },
-  { label: 'Parking Management', icon: SquareParking, path: '/parking' },
-  { label: 'Vehicle Registry', icon: Car, path: '/vehicles' },
-  { label: 'Access Control', icon: ShieldCheck, path: '/access' },
-  { label: 'Visitor Rules', icon: UserCheck, path: '/visitor-rules' },
-  { label: 'Staff Management', icon: Users, path: '/staff' },
-  { label: 'Announcements', icon: Megaphone, path: '/announcements' },
-  { label: 'Hardware', icon: HardDrive, path: '/hardware' },
-  { label: 'Reports & Analytics', icon: BarChart3, path: '/reports' },
-  { label: 'Audit Logs', icon: ClipboardList, path: '/audit-logs' },
+
+  { section: 'Property Management' },
+  { label: 'Developers',  icon: Building,  path: '/developers' },
+  { label: 'Compounds',   icon: Layers,    path: '/compounds' },
+  { label: 'Buildings',   icon: Building2, path: '/buildings' },
+  { label: 'Units',       icon: Home,      path: '/units' },
+
+  { section: 'Residents & Vehicles' },
+  { label: 'Residents', icon: Users, path: '/residents' },
+  { label: 'Vehicles',  icon: Car,   path: '/vehicles' },
+
+  { section: 'Access & Security' },
+  { label: 'Access Control', icon: ShieldCheck,   path: '/access' },
+  { label: 'Visitor Rules',  icon: UserCheck,     path: '/visitor-rules' },
+  { label: 'Parking',        icon: SquareParking, path: '/parking' },
+
+  { section: 'Operations' },
+  { label: 'Services',         icon: Briefcase, path: '/services' },
+  { label: 'Service Requests', icon: Ticket,    path: '/service-requests' },
+  { label: 'Announcements',    icon: Megaphone, path: '/announcements' },
+
+  { section: 'Staff' },
+  { label: 'Staff Management', icon: UserCog, path: '/staff' },
+
+  { section: 'Intelligence' },
+  { label: 'Reports & Analytics', icon: BarChart3,    path: '/reports' },
+  { label: 'Audit Logs',          icon: ClipboardList, path: '/audit-logs' },
 ];
 
 const BREADCRUMB_MAP: Record<string, string> = {
-  '/': 'Overview',
-  '/developers': 'Developers & Compounds',
-  '/units': 'Units & Residents',
-  '/parking': 'Parking Management',
-  '/vehicles': 'Vehicle Registry',
+  '/': 'Dashboard',
+  '/developers': 'Property Developers',
+  '/compounds': 'Compounds',
+  '/buildings': 'Buildings',
+  '/parking': 'Parking',
   '/access': 'Access Control',
-  '/visitor-rules': 'Visitor Pass Rules',
+  '/visitor-rules': 'Visitor Rules',
+  '/services': 'Services',
+  '/units': 'Units',
+  '/residents': 'Residents',
+  '/vehicles': 'Vehicles',
   '/staff': 'Staff Management',
+  '/service-requests': 'Service Requests',
   '/announcements': 'Announcements',
-  '/hardware': 'Hardware',
   '/reports': 'Reports & Analytics',
   '/audit-logs': 'Audit Logs',
   '/settings': 'Settings',
 };
 
-const PROPERTY_DEVELOPERS = {
-  'Palm Hills': ['Palm Hills Katameya', 'Palm Hills October'],
-  'Sodic': ['Sodic West', 'Sodic East'],
-  'Hyde Park': ['Hyde Park', 'Hyde Park New Cairo'],
-  'New Zayed': ['New Zayed Phase II', 'New Zayed Phase III'],
-};
-
-const ALL_COMPOUNDS_PREFIX = 'All ';
-
 export function Layout() {
   const location = useLocation();
-  const developers = Object.keys(PROPERTY_DEVELOPERS);
-  const [propertyDeveloper, setPropertyDeveloper] = useState(developers[0]);
-  const [propertyDeveloperOpen, setPropertyDeveloperOpen] = useState(false);
-  const [compound, setCompound] = useState(ALL_COMPOUNDS_PREFIX + developers[0]);
-  const [compoundOpen, setCompoundOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [devOpen, setDevOpen] = useState(false);
+  const [compoundOpen, setCompoundOpen] = useState(false);
   const currentPage = BREADCRUMB_MAP[location.pathname] ?? 'Dashboard';
 
-  const availableCompounds = [
-    ALL_COMPOUNDS_PREFIX + propertyDeveloper,
-    ...PROPERTY_DEVELOPERS[propertyDeveloper as keyof typeof PROPERTY_DEVELOPERS],
-  ];
+  const {
+    activeDeveloper, setActiveDeveloper,
+    activeCompound, setActiveCompound,
+    availableCompounds,
+  } = useCompound();
 
   return (
     <div className="flex h-screen w-full overflow-hidden" style={{ background: '#F4F5F7' }}>
@@ -87,82 +107,84 @@ export function Layout() {
           borderColor: '#E5E7EB',
         }}
       >
-        {/* Logo + Property Developer & Compound Selector */}
-        <div className="px-5 py-5 border-b" style={{ borderColor: '#E5E7EB' }}>
-          <div className="flex items-center gap-2 mb-4">
-            <div
-              className="flex items-center justify-center rounded-lg"
-              style={{ width: 32, height: 32, background: '#1B4FD8' }}
-            >
-              <span className="text-white text-xs" style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700 }}>K</span>
-            </div>
-            <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 16, color: '#111827', letterSpacing: '-0.3px' }}>
-              KMPNDI
+        {/* Logo */}
+        <div className="px-5 pt-5 pb-4 border-b" style={{ borderColor: '#E5E7EB' }}>
+          <div className="mb-4">
+            <span style={{
+              fontFamily: "'DM Sans', 'Nunito', 'Inter', sans-serif",
+              fontWeight: 700,
+              fontSize: 22,
+              color: '#1E2D3D',
+              letterSpacing: '-0.5px',
+              lineHeight: 1,
+            }}>
+              kmpndi.
             </span>
           </div>
 
-          {/* Property Developer Selector */}
-          <div className="relative mb-3">
+          {/* Developer selector (KMPNDI staff only — will be hidden for property developers) */}
+          <div className="relative mb-2">
             <button
-              onClick={() => setPropertyDeveloperOpen(!propertyDeveloperOpen)}
+              onClick={() => { setDevOpen(!devOpen); setCompoundOpen(false); }}
               className="w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-left transition-colors hover:bg-gray-50"
               style={{ background: '#F4F5F7', border: '1px solid #E5E7EB' }}
             >
-              <div>
-                <p style={{ fontSize: 11, color: '#6B7280', fontWeight: 500, marginBottom: 1 }}>Property Developer</p>
-                <p style={{ fontSize: 13, color: '#111827', fontWeight: 500 }} className="truncate max-w-[140px]">{propertyDeveloper}</p>
+              <div className="min-w-0">
+                <p style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 1 }}>Developer</p>
+                <p style={{ fontSize: 13, color: '#111827', fontWeight: 500 }} className="truncate">{activeDeveloper}</p>
               </div>
-              <ChevronDown size={14} color="#6B7280" />
+              <ChevronDown size={13} color="#9CA3AF" className={`flex-shrink-0 transition-transform ${devOpen ? 'rotate-180' : ''}`} />
             </button>
-            {propertyDeveloperOpen && (
+            {devOpen && (
               <div
-                className="absolute left-0 right-0 top-full mt-1 rounded-[6px] shadow-lg z-50 overflow-hidden"
+                className="absolute left-0 right-0 top-full mt-1 rounded-[8px] shadow-lg z-50 overflow-hidden"
                 style={{ background: '#FFFFFF', border: '1px solid #E5E7EB' }}
               >
-                {developers.map((dev) => (
+                {DEVELOPERS.map((dev) => (
                   <button
                     key={dev}
-                    onClick={() => {
-                      setPropertyDeveloper(dev);
-                      setCompound(ALL_COMPOUNDS_PREFIX + dev);
-                      setPropertyDeveloperOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2 hover:bg-blue-50 transition-colors"
-                    style={{ fontSize: 13, color: dev === propertyDeveloper ? '#1B4FD8' : '#111827', fontWeight: dev === propertyDeveloper ? 500 : 400 }}
+                    onClick={() => { setActiveDeveloper(dev); setDevOpen(false); }}
+                    className="w-full text-left px-3 py-2.5 hover:bg-blue-50 transition-colors flex items-center justify-between"
+                    style={{ fontSize: 13, color: '#111827', borderBottom: '1px solid #F3F4F6' }}
                   >
-                    {dev}
+                    <div>
+                      <p style={{ fontWeight: dev === activeDeveloper ? 600 : 400, color: dev === activeDeveloper ? '#1B4FD8' : '#111827' }}>{dev}</p>
+                      <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1 }}>{COMPOUNDS_BY_DEVELOPER[dev].length} compounds</p>
+                    </div>
+                    {dev === activeDeveloper && <Check size={14} color="#1B4FD8" strokeWidth={2.5} />}
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Compound Selector */}
+          {/* Active compound selector */}
           <div className="relative">
             <button
-              onClick={() => setCompoundOpen(!compoundOpen)}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-left transition-colors hover:bg-gray-50"
-              style={{ background: '#F4F5F7', border: '1px solid #E5E7EB' }}
+              onClick={() => { setCompoundOpen(!compoundOpen); setDevOpen(false); }}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-left transition-colors"
+              style={{ background: '#EEF2FF', border: '1px solid #C7D7F9' }}
             >
-              <div>
-                <p style={{ fontSize: 11, color: '#6B7280', fontWeight: 500, marginBottom: 1 }}>Compound</p>
-                <p style={{ fontSize: 13, color: '#111827', fontWeight: 500 }} className="truncate max-w-[140px]">{compound}</p>
+              <div className="min-w-0">
+                <p style={{ fontSize: 10, color: '#1B4FD8', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 1 }}>Active Compound</p>
+                <p style={{ fontSize: 13, color: '#1B4FD8', fontWeight: 600 }} className="truncate">{activeCompound}</p>
               </div>
-              <ChevronDown size={14} color="#6B7280" />
+              <ChevronDown size={13} color="#1B4FD8" className={`flex-shrink-0 transition-transform ${compoundOpen ? 'rotate-180' : ''}`} />
             </button>
             {compoundOpen && (
               <div
-                className="absolute left-0 right-0 top-full mt-1 rounded-[6px] shadow-lg z-50 overflow-hidden"
+                className="absolute left-0 right-0 top-full mt-1 rounded-[8px] shadow-lg z-50 overflow-hidden"
                 style={{ background: '#FFFFFF', border: '1px solid #E5E7EB' }}
               >
                 {availableCompounds.map((c) => (
                   <button
                     key={c}
-                    onClick={() => { setCompound(c); setCompoundOpen(false); }}
-                    className="w-full text-left px-3 py-2 hover:bg-blue-50 transition-colors"
-                    style={{ fontSize: 13, color: c === compound ? '#1B4FD8' : '#111827', fontWeight: c === compound ? 500 : 400 }}
+                    onClick={() => { setActiveCompound(c); setCompoundOpen(false); }}
+                    className="w-full text-left px-3 py-2.5 hover:bg-blue-50 transition-colors flex items-center justify-between"
+                    style={{ fontSize: 13, borderBottom: '1px solid #F3F4F6' }}
                   >
-                    {c}
+                    <span style={{ fontWeight: c === activeCompound ? 600 : 400, color: c === activeCompound ? '#1B4FD8' : '#111827' }}>{c}</span>
+                    {c === activeCompound && <Check size={14} color="#1B4FD8" strokeWidth={2.5} />}
                   </button>
                 ))}
               </div>
@@ -172,44 +194,62 @@ export function Layout() {
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-3 px-3">
-          <p style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', letterSpacing: '0.06em', textTransform: 'uppercase', padding: '6px 8px', marginBottom: 2 }}>
-            Main Menu
-          </p>
-          {NAV_ITEMS.map(({ label, icon: Icon, path, end }) => (
-            <NavLink
-              key={path}
-              to={path}
-              end={end}
-              className={({ isActive }) =>
-                `flex items-center gap-3 relative rounded-[6px] px-3 py-2 mb-0.5 transition-colors group ${
-                  isActive ? '' : 'hover:bg-gray-50'
-                }`
-              }
-              style={({ isActive }) => ({
-                background: isActive ? '#EEF2FF' : undefined,
-                color: isActive ? '#1B4FD8' : '#374151',
-              })}
-            >
-              {({ isActive }) => (
-                <>
-                  {isActive && (
-                    <span
-                      className="absolute left-0 top-1 bottom-1 rounded-full"
-                      style={{ width: 3, background: '#1B4FD8' }}
+          {NAV_ITEMS.map((item, idx) => {
+            if ('section' in item) {
+              return (
+                <p
+                  key={`section-${idx}`}
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: '#9CA3AF',
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    padding: '6px 8px 4px',
+                    marginTop: idx === 0 ? 0 : 8,
+                  }}
+                >
+                  {item.section}
+                </p>
+              );
+            }
+            const { label, icon: Icon, path, end } = item;
+            return (
+              <NavLink
+                key={path}
+                to={path}
+                end={end}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 relative rounded-[6px] px-3 py-2 mb-0.5 transition-colors group ${
+                    isActive ? '' : 'hover:bg-gray-50'
+                  }`
+                }
+                style={({ isActive }) => ({
+                  background: isActive ? '#EEF2FF' : undefined,
+                  color: isActive ? '#1B4FD8' : '#374151',
+                })}
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <span
+                        className="absolute left-0 top-1 bottom-1 rounded-full"
+                        style={{ width: 3, background: '#1B4FD8' }}
+                      />
+                    )}
+                    <Icon
+                      size={18}
+                      strokeWidth={isActive ? 2 : 1.5}
+                      color={isActive ? '#1B4FD8' : '#6B7280'}
                     />
-                  )}
-                  <Icon
-                    size={18}
-                    strokeWidth={isActive ? 2 : 1.5}
-                    color={isActive ? '#1B4FD8' : '#6B7280'}
-                  />
-                  <span style={{ fontSize: 13.5, fontWeight: isActive ? 600 : 400 }}>{label}</span>
-                </>
-              )}
-            </NavLink>
-          ))}
+                    <span style={{ fontSize: 13.5, fontWeight: isActive ? 600 : 400 }}>{label}</span>
+                  </>
+                )}
+              </NavLink>
+            );
+          })}
 
-          <div className="my-3 border-t" style={{ borderColor: '#E5E7EB' }} />
+          <div className="my-2 border-t" style={{ borderColor: '#E5E7EB' }} />
           <NavLink
             to="/settings"
             className={({ isActive }) =>
@@ -265,9 +305,11 @@ export function Layout() {
         }}
       >
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 flex-1">
-          <span style={{ fontSize: 13, color: '#6B7280' }}>KMPNDI</span>
-          <ChevronRight size={14} color="#9CA3AF" />
+        <div className="flex items-center gap-1.5 flex-1 min-w-0">
+          <span style={{ fontSize: 13, color: '#9CA3AF' }}>KMPNDI</span>
+          <ChevronRight size={13} color="#D1D5DB" />
+          <span style={{ fontSize: 13, color: '#6B7280' }} className="truncate max-w-[140px]">{activeCompound}</span>
+          <ChevronRight size={13} color="#D1D5DB" />
           <span style={{ fontSize: 13, fontWeight: 600, color: '#111827', fontFamily: "'Sora', sans-serif" }}>
             {currentPage}
           </span>
@@ -349,7 +391,7 @@ export function Layout() {
       <main
         className="flex-1 overflow-y-auto"
         style={{ marginLeft: 240, marginTop: 64, background: '#F4F5F7' }}
-        onClick={() => { setPropertyDeveloperOpen(false); setCompoundOpen(false); setNotifOpen(false); }}
+        onClick={() => { setNotifOpen(false); setDevOpen(false); setCompoundOpen(false); }}
       >
         <Outlet />
       </main>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, ChevronRight, Plus, Layers, MapPin, Shield, Cpu, DoorOpen, X } from 'lucide-react';
+import { Search, ChevronRight, Plus, Layers, MapPin, Shield, Cpu, DoorOpen, X, FileSpreadsheet } from 'lucide-react';
 
 type Zone = { id: string; name: string; description: string; gates: number; units: number };
 type Gate = { id: string; name: string; zone: string; type: 'vehicle' | 'pedestrian' | 'service'; status: 'online' | 'offline' };
@@ -166,6 +166,7 @@ export function Compounds() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Record<string, Tab>>({});
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   // Add Zone modal
   const [addZoneForId, setAddZoneForId] = useState<string | null>(null);
@@ -236,14 +237,24 @@ export function Compounds() {
             {COMPOUNDS.length} compounds · {totalZones} zones · {totalGates} gates
           </p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-[6px] text-white transition-opacity hover:opacity-90"
-          style={{ background: '#1B4FD8', fontSize: 13, fontWeight: 500 }}
-        >
-          <Plus size={16} strokeWidth={2} />
-          Add Compound
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-[6px] transition-colors hover:bg-gray-100"
+            style={{ border: '1px solid #E5E7EB', background: '#FFFFFF', fontSize: 13, fontWeight: 500, color: '#374151' }}
+          >
+            <FileSpreadsheet size={16} color="#10B981" strokeWidth={1.5} />
+            Import from Excel
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-[6px] text-white transition-opacity hover:opacity-90"
+            style={{ background: '#1B4FD8', fontSize: 13, fontWeight: 500 }}
+          >
+            <Plus size={16} strokeWidth={2} />
+            Add Compound
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -362,36 +373,36 @@ export function Compounds() {
                   <div className="p-5">
                     {/* Zones Tab */}
                     {tab === 'zones' && (
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
                         {compound.zones.map((zone) => (
-                          <div key={zone.id} className="p-4 rounded-[8px]" style={{ background: '#F9FAFB', border: '1px solid #E5E7EB' }}>
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <div className="p-1.5 rounded-[6px]" style={{ background: '#EEF2FF' }}>
-                                  <Shield size={14} color="#1B4FD8" strokeWidth={1.5} />
-                                </div>
-                                <span style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>{zone.name}</span>
+                          <div key={zone.id} className="flex items-center justify-between px-4 py-3 rounded-[8px]" style={{ background: '#F9FAFB', border: '1px solid #E5E7EB' }}>
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 rounded-[6px]" style={{ background: '#EEF2FF' }}>
+                                <Shield size={15} color="#1B4FD8" strokeWidth={1.5} />
                               </div>
-                              <button className="text-xs px-2 py-1 rounded-[4px] hover:bg-gray-200 transition-colors" style={{ fontSize: 11, color: '#6B7280', background: '#E5E7EB' }}>
+                              <div>
+                                <p style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{zone.name}</p>
+                                <p style={{ fontSize: 11, color: '#6B7280' }}>{zone.description}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-6">
+                              <div className="text-center">
+                                <p style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, letterSpacing: '0.05em' }}>GATES</p>
+                                <p style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginTop: 1 }}>{zone.gates}</p>
+                              </div>
+                              <div className="text-center">
+                                <p style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, letterSpacing: '0.05em' }}>UNITS</p>
+                                <p style={{ fontSize: 14, fontWeight: 700, color: '#111827', marginTop: 1 }}>{zone.units}</p>
+                              </div>
+                              <button className="px-3 py-1 rounded-[4px] hover:bg-gray-200 transition-colors" style={{ fontSize: 11, color: '#6B7280', background: '#E5E7EB' }}>
                                 Edit
                               </button>
-                            </div>
-                            <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 12 }}>{zone.description}</p>
-                            <div className="flex gap-4">
-                              <div>
-                                <p style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600 }}>GATES</p>
-                                <p style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>{zone.gates}</p>
-                              </div>
-                              <div>
-                                <p style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600 }}>UNITS</p>
-                                <p style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>{zone.units}</p>
-                              </div>
                             </div>
                           </div>
                         ))}
                         <button
                           onClick={() => { setAddZoneForId(compound.id); setZoneForm({ name: '', description: '' }); }}
-                          className="p-4 rounded-[8px] flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors"
+                          className="w-full py-3 rounded-[8px] flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors"
                           style={{ border: '1.5px dashed #C7D2FE', color: '#1B4FD8', fontSize: 13, fontWeight: 500 }}
                         >
                           <Plus size={16} strokeWidth={2} />
@@ -678,6 +689,47 @@ export function Compounds() {
               <button onClick={() => setShowAddModal(false)} className="px-4 py-2 rounded-[8px] hover:opacity-90 transition-opacity" style={{ background: '#1B4FD8', color: '#FFFFFF', fontSize: 14, fontWeight: 500 }}>
                 Add Compound
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import from Excel Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-50">
+          <div className="rounded-[12px] w-full max-w-md overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+            <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: '#E5E7EB' }}>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-[8px]" style={{ background: '#DCFCE7' }}>
+                  <FileSpreadsheet size={20} color="#10B981" strokeWidth={1.5} />
+                </div>
+                <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 18, fontWeight: 600, color: '#111827' }}>Import from Excel</h2>
+              </div>
+              <button onClick={() => setShowImportModal(false)} className="p-1 rounded-[6px] hover:bg-gray-100 transition-colors">
+                <X size={18} color="#6B7280" />
+              </button>
+            </div>
+            <div className="px-6 py-5 space-y-4">
+              <div
+                className="flex flex-col items-center justify-center gap-3 py-10 rounded-[8px] cursor-pointer hover:bg-green-50 transition-colors"
+                style={{ border: '1.5px dashed #6EE7B7' }}
+              >
+                <div className="p-3 rounded-full" style={{ background: '#DCFCE7' }}>
+                  <FileSpreadsheet size={24} color="#10B981" strokeWidth={1.5} />
+                </div>
+                <p style={{ fontSize: 14, fontWeight: 500, color: '#111827' }}>Drop your Excel file here</p>
+                <p style={{ fontSize: 12, color: '#6B7280' }}>or click to browse · .xlsx, .xls supported</p>
+                <input type="file" accept=".xlsx,.xls" className="hidden" />
+              </div>
+              <div className="p-3 rounded-[6px]" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+                <p style={{ fontSize: 12, color: '#15803D' }}>
+                  Expected columns: <strong>Name, Location, Developer, Units, Status</strong>
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t" style={{ borderColor: '#E5E7EB' }}>
+              <button onClick={() => setShowImportModal(false)} className="px-4 py-2 rounded-[8px] hover:bg-gray-100 transition-colors" style={{ fontSize: 14, fontWeight: 500, color: '#374151' }}>Cancel</button>
+              <button onClick={() => setShowImportModal(false)} className="px-4 py-2 rounded-[8px] hover:opacity-90 transition-opacity" style={{ background: '#10B981', color: '#FFFFFF', fontSize: 14, fontWeight: 500 }}>Import</button>
             </div>
           </div>
         </div>

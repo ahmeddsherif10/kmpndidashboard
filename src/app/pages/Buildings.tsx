@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Plus, X, Eye, Building2, Home, LayoutGrid, List, BedDouble, Bath, Trees, Car, Layers, Ruler, MapPin } from 'lucide-react';
+import { Search, Plus, X, Pencil, Building2, Home, LayoutGrid, BedDouble, Bath, Trees, Car, Layers, Ruler, MapPin } from 'lucide-react';
 import type React from 'react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -92,21 +92,11 @@ const STATUS_META: Record<BuildingStatus, { label: string; bg: string; color: st
 
 const COMPOUNDS = ['All Compounds', 'Palm Hills Katameya', 'Palm Hills October', 'Sodic West', 'Sodic East', 'Hyde Park', 'Hyde Park New Cairo', 'New Zayed Phase II', 'New Zayed Phase III'];
 
-function Stat({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div>
-      <p style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</p>
-      <p style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginTop: 2 }}>{value}</p>
-    </div>
-  );
-}
-
 export function Buildings() {
   const [search, setSearch]               = useState('');
   const [typeFilter, setTypeFilter]       = useState<string>('all');
   const [compoundFilter, setCompound]     = useState('All Compounds');
   const [statusFilter, setStatusFilter]   = useState<string>('all');
-  const [viewMode, setViewMode]           = useState<'grid' | 'list'>('grid');
   const [selected, setSelected]           = useState<Building | null>(null);
   const [showAddModal, setShowAddModal]   = useState(false);
 
@@ -163,9 +153,9 @@ export function Buildings() {
         ))}
       </div>
 
-      {/* Filters + View Toggle */}
+      {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 p-4 rounded-[10px] mb-5" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-        <div className="flex items-center gap-2 rounded-[6px] px-3" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', height: 36, flex: '1 1 200px', maxWidth: 300 }}>
+        <div className="flex items-center gap-2 rounded-[6px] px-3" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', height: 36, flex: '1 1 200px', maxWidth: 320 }}>
           <Search size={14} color="#9CA3AF" strokeWidth={1.5} />
           <input
             value={search}
@@ -196,155 +186,78 @@ export function Buildings() {
         </select>
 
         <span style={{ fontSize: 12, color: '#9CA3AF' }}>{filtered.length} result{filtered.length !== 1 ? 's' : ''}</span>
-
-        {/* View toggle */}
-        <div className="ml-auto flex items-center gap-1 p-1 rounded-[6px]" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB' }}>
-          {(['grid', 'list'] as const).map((m) => (
-            <button
-              key={m}
-              onClick={() => setViewMode(m)}
-              className="p-1.5 rounded-[4px] transition-colors"
-              style={{ background: viewMode === m ? '#FFFFFF' : 'transparent', boxShadow: viewMode === m ? '0 1px 3px rgba(0,0,0,0.08)' : 'none' }}
-            >
-              {m === 'grid' ? <LayoutGrid size={15} color={viewMode === m ? '#111827' : '#9CA3AF'} /> : <List size={15} color={viewMode === m ? '#111827' : '#9CA3AF'} />}
-            </button>
-          ))}
-        </div>
       </div>
 
-      {/* ── Grid View ── */}
-      {viewMode === 'grid' && (
-        <div className="grid grid-cols-3 gap-4">
-          {filtered.map((b) => {
-            const tm = TYPE_META[b.type];
-            const sm = STATUS_META[b.status];
-            return (
-              <div
-                key={b.id}
-                className="rounded-[10px] overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-                style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-                onClick={() => setSelected(b)}
-              >
-                {/* Card header strip */}
-                <div className="px-5 pt-5 pb-4 border-b" style={{ borderColor: '#F3F4F6' }}>
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="p-2.5 rounded-[8px]" style={{ background: tm.bg }}>
-                      <tm.icon size={20} color={tm.color} strokeWidth={1.5} />
+      {/* ── Buildings List ── */}
+      <div className="space-y-2">
+        {filtered.map((b) => {
+          const tm = TYPE_META[b.type];
+          const sm = STATUS_META[b.status];
+
+          const stats = [
+            { label: 'FLOORS',   value: b.floors,       dim: false },
+            { label: 'UNITS',    value: b.units,        dim: false },
+            { label: 'BEDS',     value: b.bedrooms,     dim: false },
+            { label: 'AREA m²',  value: b.builtArea,    dim: false },
+            { label: 'PARKING',  value: b.parkingSpots, dim: false },
+            { label: 'GARDEN',   value: b.hasGarden ? `${b.gardenArea} m²` : '—', dim: !b.hasGarden },
+          ];
+
+          return (
+            <div
+              key={b.id}
+              className="rounded-[10px] overflow-hidden cursor-pointer hover:bg-gray-50 transition-colors"
+              style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+              onClick={() => setSelected(b)}
+            >
+              <div className="px-5 py-4 flex items-center justify-between">
+
+                {/* Left: icon + name + location + type badge */}
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="p-2.5 rounded-[8px] shrink-0" style={{ background: tm.bg }}>
+                    <tm.icon size={20} color={tm.color} strokeWidth={1.5} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 style={{ fontSize: 15, fontWeight: 600, color: '#111827' }}>{b.name}</h3>
+                      <span className="px-2 py-0.5 rounded-[4px]" style={{ fontSize: 10, fontWeight: 600, background: tm.bg, color: tm.color }}>
+                        {tm.label}
+                      </span>
                     </div>
-                    <span className="px-2 py-0.5 rounded-[4px]" style={{ fontSize: 10, fontWeight: 600, background: sm.bg, color: sm.color }}>
-                      {sm.label}
-                    </span>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <MapPin size={12} color="#9CA3AF" strokeWidth={1.5} />
+                      <span style={{ fontSize: 12, color: '#6B7280' }}>{b.compound} · {b.zone}</span>
+                    </div>
                   </div>
-                  <h3 style={{ fontSize: 15, fontWeight: 600, color: '#111827' }}>{b.name}</h3>
-                  <div className="flex items-center gap-1 mt-1">
-                    <MapPin size={11} color="#9CA3AF" strokeWidth={1.5} />
-                    <p style={{ fontSize: 12, color: '#6B7280' }}>{b.compound} · {b.zone}</p>
-                  </div>
-                  <span className="inline-block mt-2 px-2 py-0.5 rounded-[4px]" style={{ fontSize: 10, fontWeight: 600, background: tm.bg, color: tm.color }}>
-                    {tm.label}
+                </div>
+
+                {/* Right: stats + status badge + arrow */}
+                <div className="flex items-center gap-7 shrink-0 ml-6">
+                  {stats.map(({ label, value, dim }) => (
+                    <div key={label} className="text-center">
+                      <p style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, letterSpacing: '0.05em' }}>{label}</p>
+                      <p style={{ fontSize: 15, fontWeight: 700, color: dim ? '#D1D5DB' : '#111827', marginTop: 1 }}>{value}</p>
+                    </div>
+                  ))}
+
+                  <span className="px-2 py-0.5 rounded-[4px]" style={{ fontSize: 10, fontWeight: 600, background: sm.bg, color: sm.color, whiteSpace: 'nowrap' }}>
+                    {sm.label}
                   </span>
+
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setSelected(b); }}
+                    className="p-2 rounded-[6px] hover:bg-blue-50 transition-colors"
+                    style={{ border: '1px solid #E5E7EB' }}
+                  >
+                    <Pencil size={14} color="#1B4FD8" strokeWidth={1.5} />
+                  </button>
                 </div>
 
-                {/* Specs grid */}
-                <div className="px-5 py-4 grid grid-cols-3 gap-3">
-                  <div className="flex flex-col items-center gap-1">
-                    <Layers size={14} color="#9CA3AF" strokeWidth={1.5} />
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{b.floors}</p>
-                    <p style={{ fontSize: 10, color: '#9CA3AF' }}>Floors</p>
-                  </div>
-                  <div className="flex flex-col items-center gap-1">
-                    <Home size={14} color="#9CA3AF" strokeWidth={1.5} />
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{b.units}</p>
-                    <p style={{ fontSize: 10, color: '#9CA3AF' }}>Units</p>
-                  </div>
-                  <div className="flex flex-col items-center gap-1">
-                    <BedDouble size={14} color="#9CA3AF" strokeWidth={1.5} />
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{b.bedrooms}</p>
-                    <p style={{ fontSize: 10, color: '#9CA3AF' }}>Beds</p>
-                  </div>
-                  <div className="flex flex-col items-center gap-1">
-                    <Ruler size={14} color="#9CA3AF" strokeWidth={1.5} />
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{b.builtArea}</p>
-                    <p style={{ fontSize: 10, color: '#9CA3AF' }}>Built m²</p>
-                  </div>
-                  <div className="flex flex-col items-center gap-1">
-                    <Car size={14} color="#9CA3AF" strokeWidth={1.5} />
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{b.parkingSpots}</p>
-                    <p style={{ fontSize: 10, color: '#9CA3AF' }}>Parking</p>
-                  </div>
-                  <div className="flex flex-col items-center gap-1">
-                    <Trees size={14} color={b.hasGarden ? '#16A34A' : '#D1D5DB'} strokeWidth={1.5} />
-                    <p style={{ fontSize: 13, fontWeight: 600, color: b.hasGarden ? '#16A34A' : '#9CA3AF' }}>
-                      {b.hasGarden ? `${b.gardenArea}m²` : '—'}
-                    </p>
-                    <p style={{ fontSize: 10, color: '#9CA3AF' }}>Garden</p>
-                  </div>
-                </div>
               </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* ── List View ── */}
-      {viewMode === 'list' && (
-        <div className="rounded-[10px] overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <table className="w-full">
-            <thead>
-              <tr style={{ borderBottom: '1px solid #E5E7EB', background: '#F9FAFB' }}>
-                {['Building', 'Type', 'Compound / Zone', 'Floors', 'Units', 'Built Area', 'Bedrooms', 'Parking', 'Garden', 'Year', 'Status', ''].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left" style={{ fontSize: 11, fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((b, idx) => {
-                const tm = TYPE_META[b.type];
-                const sm = STATUS_META[b.status];
-                return (
-                  <tr key={b.id} style={{ borderBottom: idx < filtered.length - 1 ? '1px solid #F3F4F6' : 'none' }} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3">
-                      <p style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{b.name}</p>
-                      <p style={{ fontSize: 11, color: '#9CA3AF' }}>{b.id}</p>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5">
-                        <div className="p-1 rounded-[4px]" style={{ background: tm.bg }}>
-                          <tm.icon size={12} color={tm.color} strokeWidth={1.5} />
-                        </div>
-                        <span style={{ fontSize: 12, color: tm.color, fontWeight: 500 }}>{tm.label}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <p style={{ fontSize: 13, color: '#374151' }}>{b.compound}</p>
-                      <p style={{ fontSize: 11, color: '#9CA3AF' }}>{b.zone}</p>
-                    </td>
-                    <td className="px-4 py-3 text-center" style={{ fontSize: 13, color: '#374151' }}>{b.floors}</td>
-                    <td className="px-4 py-3 text-center" style={{ fontSize: 13, color: '#374151' }}>{b.units}</td>
-                    <td className="px-4 py-3" style={{ fontSize: 13, color: '#374151' }}>{b.builtArea} m²</td>
-                    <td className="px-4 py-3 text-center" style={{ fontSize: 13, color: '#374151' }}>{b.bedrooms}</td>
-                    <td className="px-4 py-3 text-center" style={{ fontSize: 13, color: '#374151' }}>{b.parkingSpots}</td>
-                    <td className="px-4 py-3 text-center">
-                      {b.hasGarden
-                        ? <span style={{ fontSize: 12, color: '#16A34A', fontWeight: 500 }}>{b.gardenArea} m²</span>
-                        : <span style={{ fontSize: 12, color: '#D1D5DB' }}>—</span>}
-                    </td>
-                    <td className="px-4 py-3 text-center" style={{ fontSize: 13, color: '#374151' }}>{b.yearBuilt}</td>
-                    <td className="px-4 py-3">
-                      <span className="px-2 py-0.5 rounded-[4px]" style={{ fontSize: 10, fontWeight: 600, background: sm.bg, color: sm.color }}>{sm.label}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <button onClick={() => setSelected(b)} className="p-1.5 rounded-[4px] hover:bg-blue-50 transition-colors">
-                        <Eye size={14} color="#1B4FD8" strokeWidth={1.5} />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+            </div>
+          );
+        })}
+      </div>
 
       {/* ── Detail Panel ── */}
       {selected && (

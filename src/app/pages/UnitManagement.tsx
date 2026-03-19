@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, ChevronDown, ChevronRight, X, Eye, Pencil, SquareParking, Car, ChevronLeft, MoreHorizontal, Plus, Home, Building, Upload, Download, FileSpreadsheet } from 'lucide-react';
+import { Search, ChevronRight, ChevronDown, X, Eye, Pencil, SquareParking, Car, ChevronLeft, MoreHorizontal, Home, Building, Download, FileSpreadsheet, UserPlus } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 const UNITS = [
@@ -37,11 +37,8 @@ export function UnitManagement() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [selectedUnit, setSelectedUnit] = useState<typeof UNITS[0] | null>(null);
   const [page, setPage] = useState(1);
-  const [addDropdownOpen, setAddDropdownOpen] = useState(false);
-  const [showAddUnitModal, setShowAddUnitModal] = useState(false);
-  const [showAddVillaModal, setShowAddVillaModal] = useState(false);
-  const [showAddBuildingModal, setShowAddBuildingModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showAddTenantModal, setShowAddTenantModal] = useState(false);
   const perPage = 8;
 
   const buildings = ['All', 'Block A', 'Block B', 'Block C', 'Block D', 'Block E'];
@@ -65,7 +62,7 @@ export function UnitManagement() {
   const paged = filtered.slice((page - 1) * perPage, page * perPage);
 
   return (
-    <div className="p-6 max-w-[1376px] mx-auto" onClick={() => setAddDropdownOpen(false)}>
+    <div className="p-6 max-w-[1376px] mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
@@ -81,47 +78,14 @@ export function UnitManagement() {
             <FileSpreadsheet size={16} color="#10B981" strokeWidth={1.5} />
             Import from Excel
           </button>
-          <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setAddDropdownOpen(!addDropdownOpen)}
-              className="flex items-center gap-2 px-4 py-2 rounded-[6px] text-white transition-opacity hover:opacity-90"
-              style={{ background: '#1B4FD8', fontSize: 13, fontWeight: 500 }}
-            >
-              <Plus size={16} strokeWidth={2} />
-              Add New
-              <ChevronDown size={14} strokeWidth={2} />
-            </button>
-            {addDropdownOpen && (
-              <div
-                className="absolute right-0 top-full mt-2 rounded-[8px] shadow-lg z-50 overflow-hidden"
-                style={{ width: 200, background: '#FFFFFF', border: '1px solid #E5E7EB' }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button
-                  onClick={() => { setShowAddVillaModal(true); setAddDropdownOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left"
-                  style={{ fontSize: 13, color: '#374151' }}
-                >
-                  <Home size={16} color="#1B4FD8" strokeWidth={1.5} />
-                  <div>
-                    <p style={{ fontWeight: 500, color: '#111827' }}>Add Villa</p>
-                    <p style={{ fontSize: 11, color: '#6B7280' }}>Standalone house</p>
-                  </div>
-                </button>
-                <button
-                  onClick={() => { setShowAddBuildingModal(true); setAddDropdownOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition-colors text-left border-t"
-                  style={{ fontSize: 13, color: '#374151', borderColor: '#F3F4F6' }}
-                >
-                  <Building size={16} color="#1B4FD8" strokeWidth={1.5} />
-                  <div>
-                    <p style={{ fontWeight: 500, color: '#111827' }}>Add Building</p>
-                    <p style={{ fontSize: 11, color: '#6B7280' }}>Multi-unit structure</p>
-                  </div>
-                </button>
-              </div>
-            )}
-          </div>
+          <button
+            onClick={() => setShowAddTenantModal(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-[6px] transition-opacity hover:opacity-90 text-white"
+            style={{ background: '#16A34A', fontSize: 13, fontWeight: 500 }}
+          >
+            <UserPlus size={16} strokeWidth={2} />
+            Add New Tenant
+          </button>
         </div>
       </div>
 
@@ -444,8 +408,8 @@ export function UnitManagement() {
         </>
       )}
 
-      {/* Add Unit Modal */}
-      {showAddUnitModal && (
+      {/* Add Unit Modal — removed (units managed via Buildings page) */}
+      {false && (
         <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-50">
           <div
             className="rounded-[12px] w-full max-w-lg overflow-hidden"
@@ -606,8 +570,8 @@ export function UnitManagement() {
         </div>
       )}
 
-      {/* Add Villa Modal */}
-      {showAddVillaModal && (
+      {/* Add Villa Modal — removed */}
+      {false && (
         <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-50">
           <div
             className="rounded-[12px] w-full max-w-lg overflow-hidden"
@@ -749,8 +713,8 @@ export function UnitManagement() {
         </div>
       )}
 
-      {/* Add Building Modal */}
-      {showAddBuildingModal && (
+      {/* Add Building Modal — removed */}
+      {false && (
         <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-50">
           <div
             className="rounded-[12px] w-full max-w-lg overflow-hidden"
@@ -1032,6 +996,74 @@ export function UnitManagement() {
               >
                 Cancel
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add New Tenant Modal */}
+      {showAddTenantModal && (
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-50">
+          <div className="rounded-[12px] w-full max-w-lg overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', maxHeight: '90vh' }}>
+            <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: '#E5E7EB' }}>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-[8px]" style={{ background: '#DCFCE7' }}>
+                  <UserPlus size={20} color="#16A34A" strokeWidth={1.5} />
+                </div>
+                <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 18, fontWeight: 600, color: '#111827' }}>Add New Tenant</h2>
+              </div>
+              <button onClick={() => setShowAddTenantModal(false)} className="p-1 rounded-[6px] hover:bg-gray-100 transition-colors">
+                <X size={18} color="#6B7280" />
+              </button>
+            </div>
+            <div className="px-6 py-5 overflow-y-auto space-y-4" style={{ maxHeight: 'calc(90vh - 140px)' }}>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>Full Name *</label>
+                  <input type="text" placeholder="e.g., Ahmed Hassan" className="w-full px-3 py-2 rounded-[6px] outline-none" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>National ID</label>
+                  <input type="text" placeholder="ID number" className="w-full px-3 py-2 rounded-[6px] outline-none" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>Phone Number *</label>
+                  <input type="tel" placeholder="+20 100 234 5678" className="w-full px-3 py-2 rounded-[6px] outline-none" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>Email</label>
+                  <input type="email" placeholder="tenant@email.com" className="w-full px-3 py-2 rounded-[6px] outline-none" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>Assigned Unit *</label>
+                  <select className="w-full px-3 py-2 rounded-[6px] outline-none" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }}>
+                    <option value="">Select unit...</option>
+                    {UNITS.filter((u) => !u.resident).map((u) => (
+                      <option key={u.id} value={u.id}>{u.unit} — {u.building}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>Move-in Date *</label>
+                  <input type="date" className="w-full px-3 py-2 rounded-[6px] outline-none" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }} />
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>Lease End Date</label>
+                <input type="date" className="w-full px-3 py-2 rounded-[6px] outline-none" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>Notes</label>
+                <textarea rows={2} placeholder="Any additional notes..." className="w-full px-3 py-2 rounded-[6px] outline-none resize-none" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }} />
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t" style={{ borderColor: '#E5E7EB' }}>
+              <button onClick={() => setShowAddTenantModal(false)} className="px-4 py-2 rounded-[8px] hover:bg-gray-100 transition-colors" style={{ fontSize: 14, fontWeight: 500, color: '#374151' }}>Cancel</button>
+              <button onClick={() => setShowAddTenantModal(false)} className="px-4 py-2 rounded-[8px] hover:opacity-90 transition-opacity" style={{ background: '#16A34A', color: '#FFFFFF', fontSize: 14, fontWeight: 500 }}>Add Tenant</button>
             </div>
           </div>
         </div>

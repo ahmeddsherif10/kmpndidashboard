@@ -51,14 +51,44 @@ export function Services() {
         </button>
       </div>
 
-      {/* Service Catalogue Grid */}
-      <div className="grid grid-cols-3 gap-4">
+      {/* Service Catalogue List */}
+      <div className="space-y-2">
         {SERVICE_CATALOGUE.map((svc) => (
-          <div key={svc.id} className="p-5 rounded-[10px]" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div className="flex items-start justify-between mb-4">
-              <div className="p-3 rounded-[10px]" style={{ background: svc.bg }}>
-                <svc.icon size={24} color={svc.color} strokeWidth={1.5} />
+          <div
+            key={svc.id}
+            className="flex items-center px-5 py-4 rounded-[10px] hover:bg-gray-50 transition-colors"
+            style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+          >
+            {/* Left: icon + name + description */}
+            <div className="flex items-center gap-4 min-w-0" style={{ flex: '0 0 340px' }}>
+              <div className="p-2.5 rounded-[8px] shrink-0" style={{ background: svc.bg }}>
+                <svc.icon size={20} color={svc.color} strokeWidth={1.5} />
               </div>
+              <div className="min-w-0">
+                <p style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>{svc.name}</p>
+                <p style={{ fontSize: 12, color: '#6B7280', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {svc.description}
+                </p>
+              </div>
+            </div>
+
+            {/* Center stats: spread evenly */}
+            <div className="flex flex-1 justify-around items-center mx-6">
+              <div className="text-center">
+                <p style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, letterSpacing: '0.05em' }}>PRICE FROM</p>
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginTop: 1 }}>
+                  EGP {svc.priceFrom}
+                  <span style={{ fontSize: 11, fontWeight: 400, color: '#9CA3AF' }}>/{svc.unit}</span>
+                </p>
+              </div>
+              <div className="text-center">
+                <p style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, letterSpacing: '0.05em' }}>REQUESTS</p>
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginTop: 1 }}>{svc.totalRequests}</p>
+              </div>
+            </div>
+
+            {/* Right: status + actions */}
+            <div className="flex items-center gap-3 shrink-0">
               <span
                 className="px-2 py-0.5 rounded-[4px]"
                 style={{
@@ -69,43 +99,30 @@ export function Services() {
               >
                 {svc.active ? 'Active' : 'Inactive'}
               </span>
-            </div>
-
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: '#111827', marginBottom: 4 }}>{svc.name}</h3>
-            <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 16, lineHeight: 1.5 }}>{svc.description}</p>
-
-            <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: '#F3F4F6' }}>
-              <div>
-                <p style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase' }}>From</p>
-                <p style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>EGP {svc.priceFrom}<span style={{ fontSize: 11, fontWeight: 400, color: '#9CA3AF' }}>/{svc.unit}</span></p>
-              </div>
-              <div className="text-right">
-                <p style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase' }}>Requests</p>
-                <p style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>{svc.totalRequests}</p>
-              </div>
-            </div>
-
-            <div className="flex gap-2 mt-4">
-              <button className="flex-1 py-1.5 rounded-[6px] text-center hover:bg-blue-50 transition-colors" style={{ border: '1px solid #C7D2FE', fontSize: 12, fontWeight: 500, color: '#1B4FD8' }}>
+              <button
+                className="px-3 py-1.5 rounded-[6px] hover:bg-blue-50 transition-colors"
+                style={{ border: '1px solid #C7D2FE', fontSize: 12, fontWeight: 500, color: '#1B4FD8' }}
+              >
                 Edit
               </button>
-              <button className="flex-1 py-1.5 rounded-[6px] text-center hover:bg-gray-100 transition-colors" style={{ border: '1px solid #E5E7EB', fontSize: 12, fontWeight: 500, color: '#6B7280' }}>
+              <button
+                className="px-3 py-1.5 rounded-[6px] hover:bg-gray-100 transition-colors"
+                style={{ border: '1px solid #E5E7EB', fontSize: 12, fontWeight: 500, color: '#6B7280' }}
+              >
                 {svc.active ? 'Deactivate' : 'Activate'}
               </button>
             </div>
           </div>
         ))}
 
-        {/* Add new service type card */}
+        {/* Add new service type row */}
         <button
           onClick={() => setShowAddService(true)}
-          className="p-5 rounded-[10px] flex flex-col items-center justify-center gap-3 hover:bg-blue-50 transition-colors"
-          style={{ border: '1.5px dashed #C7D2FE', minHeight: 200 }}
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-[10px] hover:bg-blue-50 transition-colors"
+          style={{ border: '1.5px dashed #C7D2FE', color: '#1B4FD8', fontSize: 13, fontWeight: 500 }}
         >
-          <div className="p-3 rounded-full" style={{ background: '#EEF2FF' }}>
-            <Plus size={22} color="#1B4FD8" strokeWidth={2} />
-          </div>
-          <p style={{ fontSize: 14, fontWeight: 500, color: '#1B4FD8' }}>Add Service Type</p>
+          <Plus size={16} strokeWidth={2} />
+          Add Service Type
         </button>
       </div>
 

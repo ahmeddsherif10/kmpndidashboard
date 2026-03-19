@@ -1,112 +1,105 @@
 import { useState } from 'react';
 import { Search, Building2, Building, MapPin, Home, Users, Car, TrendingUp, ChevronRight, Plus, X } from 'lucide-react';
 
-const PROPERTY_DEVELOPERS = {
+// ─── Types & Data ─────────────────────────────────────────────────────────────
+
+type Compound = {
+  name: string;
+  location: string;
+  units: number;
+  occupancy: number;
+  activeResidents: number;
+  vehicles: number;
+  parkingSlots: number;
+  status: 'active' | 'construction';
+};
+
+type Developer = {
+  compounds: Compound[];
+  totalUnits: number;
+  totalCompounds: number;
+};
+
+const PROPERTY_DEVELOPERS: Record<string, Developer> = {
   'Palm Hills': {
     compounds: [
-      {
-        name: 'Palm Hills Katameya',
-        location: 'New Cairo',
-        units: 450,
-        occupancy: 92,
-        activeResidents: 1240,
-        vehicles: 780,
-        parkingSlots: 890,
-        status: 'active'
-      },
-      {
-        name: 'Palm Hills October',
-        location: '6th of October',
-        units: 320,
-        occupancy: 87,
-        activeResidents: 890,
-        vehicles: 560,
-        parkingSlots: 640,
-        status: 'active'
-      },
+      { name: 'Palm Hills Katameya', location: 'New Cairo',        units: 450, occupancy: 92, activeResidents: 1240, vehicles: 780,  parkingSlots: 890,  status: 'active' },
+      { name: 'Palm Hills October',  location: '6th of October',   units: 320, occupancy: 87, activeResidents: 890,  vehicles: 560,  parkingSlots: 640,  status: 'active' },
     ],
     totalUnits: 770,
     totalCompounds: 2,
   },
   'Sodic': {
     compounds: [
-      {
-        name: 'Sodic West',
-        location: 'Sheikh Zayed',
-        units: 580,
-        occupancy: 95,
-        activeResidents: 1650,
-        vehicles: 980,
-        parkingSlots: 1160,
-        status: 'active'
-      },
-      {
-        name: 'Sodic East',
-        location: 'New Cairo',
-        units: 410,
-        occupancy: 89,
-        activeResidents: 1120,
-        vehicles: 690,
-        parkingSlots: 820,
-        status: 'active'
-      },
+      { name: 'Sodic West', location: 'Sheikh Zayed', units: 580, occupancy: 95, activeResidents: 1650, vehicles: 980,  parkingSlots: 1160, status: 'active' },
+      { name: 'Sodic East', location: 'New Cairo',    units: 410, occupancy: 89, activeResidents: 1120, vehicles: 690,  parkingSlots: 820,  status: 'active' },
     ],
     totalUnits: 990,
     totalCompounds: 2,
   },
   'Hyde Park': {
     compounds: [
-      {
-        name: 'Hyde Park',
-        location: 'New Cairo',
-        units: 650,
-        occupancy: 94,
-        activeResidents: 1820,
-        vehicles: 1100,
-        parkingSlots: 1300,
-        status: 'active'
-      },
-      {
-        name: 'Hyde Park New Cairo',
-        location: 'New Cairo East',
-        units: 480,
-        occupancy: 91,
-        activeResidents: 1340,
-        vehicles: 810,
-        parkingSlots: 960,
-        status: 'active'
-      },
+      { name: 'Hyde Park',          location: 'New Cairo',      units: 650, occupancy: 94, activeResidents: 1820, vehicles: 1100, parkingSlots: 1300, status: 'active' },
+      { name: 'Hyde Park New Cairo',location: 'New Cairo East', units: 480, occupancy: 91, activeResidents: 1340, vehicles: 810,  parkingSlots: 960,  status: 'active' },
     ],
     totalUnits: 1130,
     totalCompounds: 2,
   },
   'New Zayed': {
     compounds: [
-      {
-        name: 'New Zayed Phase II',
-        location: 'Sheikh Zayed',
-        units: 380,
-        occupancy: 78,
-        activeResidents: 950,
-        vehicles: 580,
-        parkingSlots: 760,
-        status: 'active'
-      },
-      {
-        name: 'New Zayed Phase III',
-        location: 'Sheikh Zayed',
-        units: 290,
-        occupancy: 72,
-        activeResidents: 680,
-        vehicles: 410,
-        parkingSlots: 580,
-        status: 'construction'
-      },
+      { name: 'New Zayed Phase II',  location: 'Sheikh Zayed', units: 380, occupancy: 78, activeResidents: 950, vehicles: 580, parkingSlots: 760, status: 'active' },
+      { name: 'New Zayed Phase III', location: 'Sheikh Zayed', units: 290, occupancy: 72, activeResidents: 680, vehicles: 410, parkingSlots: 580, status: 'construction' },
     ],
     totalUnits: 670,
     totalCompounds: 2,
   },
 };
+
+// ─── Column definitions (shared between header row and developer/compound rows) ─
+
+const METRIC_COLS = [
+  { key: 'units',    label: 'UNITS',     icon: Home },
+  { key: 'occ',     label: 'OCCUPANCY', icon: TrendingUp },
+  { key: 'res',     label: 'RESIDENTS', icon: Users },
+  { key: 'veh',     label: 'VEHICLES',  icon: Car },
+  { key: 'park',    label: 'PARKING',   icon: MapPin },
+] as const;
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function computeTotals(compounds: Compound[]) {
+  const units     = compounds.reduce((s, c) => s + c.units, 0);
+  const residents = compounds.reduce((s, c) => s + c.activeResidents, 0);
+  const vehicles  = compounds.reduce((s, c) => s + c.vehicles, 0);
+  const parking   = compounds.reduce((s, c) => s + c.parkingSlots, 0);
+  // Weighted average occupancy
+  const occ = units > 0
+    ? Math.round(compounds.reduce((s, c) => s + c.occupancy * c.units, 0) / units)
+    : 0;
+  return { units, occ, residents, vehicles, parking };
+}
+
+function metricValues(row: { units: number; occ: number; residents: number; vehicles: number; parking: number }) {
+  return [
+    row.units.toLocaleString(),
+    `${row.occ}%`,
+    row.residents.toLocaleString(),
+    row.vehicles.toLocaleString(),
+    row.parking.toLocaleString(),
+  ] as const;
+}
+
+function compoundValues(c: Compound) {
+  return [
+    c.units.toLocaleString(),
+    `${c.occupancy}%`,
+    c.activeResidents.toLocaleString(),
+    c.vehicles.toLocaleString(),
+    c.parkingSlots.toLocaleString(),
+  ] as const;
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export function DevelopersOverview() {
   const [search, setSearch] = useState('');
@@ -114,19 +107,25 @@ export function DevelopersOverview() {
   const [showAddDeveloperModal, setShowAddDeveloperModal] = useState(false);
 
   const developers = Object.keys(PROPERTY_DEVELOPERS);
-  const totalCompounds = developers.reduce((sum, dev) => sum + PROPERTY_DEVELOPERS[dev as keyof typeof PROPERTY_DEVELOPERS].totalCompounds, 0);
-  const totalUnits = developers.reduce((sum, dev) => sum + PROPERTY_DEVELOPERS[dev as keyof typeof PROPERTY_DEVELOPERS].totalUnits, 0);
+  const totalCompounds = developers.reduce((s, d) => s + PROPERTY_DEVELOPERS[d].totalCompounds, 0);
+  const totalUnits     = developers.reduce((s, d) => s + PROPERTY_DEVELOPERS[d].totalUnits, 0);
 
-  const filteredDevelopers = developers.filter((dev) => {
-    const matchSearch = !search || dev.toLowerCase().includes(search.toLowerCase()) ||
-      PROPERTY_DEVELOPERS[dev as keyof typeof PROPERTY_DEVELOPERS].compounds.some(c =>
-        c.name.toLowerCase().includes(search.toLowerCase())
-      );
-    return matchSearch;
-  });
+  const allCompounds = developers.flatMap((d) => PROPERTY_DEVELOPERS[d].compounds);
+  const globalOcc = allCompounds.length
+    ? Math.round(allCompounds.reduce((s, c) => s + c.occupancy, 0) / allCompounds.length)
+    : 0;
+
+  const filteredDevelopers = developers.filter((dev) =>
+    !search ||
+    dev.toLowerCase().includes(search.toLowerCase()) ||
+    PROPERTY_DEVELOPERS[dev].compounds.some((c) =>
+      c.name.toLowerCase().includes(search.toLowerCase())
+    )
+  );
 
   return (
     <div className="p-6 max-w-[1376px] mx-auto">
+
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
@@ -134,7 +133,7 @@ export function DevelopersOverview() {
             Property Developers
           </h1>
           <p style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>
-            {developers.length} developers · {totalCompounds} compounds · {totalUnits} total units
+            {developers.length} developers · {totalCompounds} compounds · {totalUnits.toLocaleString()} total units
           </p>
         </div>
         <button
@@ -150,38 +149,24 @@ export function DevelopersOverview() {
       {/* Stats Cards */}
       <div className="grid grid-cols-4 gap-4 mb-5">
         {[
-          { label: 'Total Developers', value: developers.length, icon: Building2, color: '#1B4FD8', bg: '#EEF2FF' },
-          { label: 'Total Compounds', value: totalCompounds, icon: MapPin, color: '#10B981', bg: '#DCFCE7' },
-          { label: 'Total Units', value: totalUnits.toLocaleString(), icon: Home, color: '#F59E0B', bg: '#FEF3C7' },
-          { label: 'Avg Occupancy', value: '88%', icon: TrendingUp, color: '#8B5CF6', bg: '#F3E8FF' },
+          { label: 'Total Developers', value: developers.length,          icon: Building2,  color: '#1B4FD8', bg: '#EEF2FF' },
+          { label: 'Total Compounds',  value: totalCompounds,             icon: MapPin,     color: '#10B981', bg: '#DCFCE7' },
+          { label: 'Total Units',      value: totalUnits.toLocaleString(),icon: Home,       color: '#F59E0B', bg: '#FEF3C7' },
+          { label: 'Avg Occupancy',    value: `${globalOcc}%`,            icon: TrendingUp, color: '#8B5CF6', bg: '#F3E8FF' },
         ].map(({ label, value, icon: Icon, color, bg }) => (
-          <div
-            key={label}
-            className="p-4 rounded-[10px]"
-            style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <div className="p-2 rounded-[6px]" style={{ background: bg }}>
-                <Icon size={18} color={color} strokeWidth={1.5} />
-              </div>
+          <div key={label} className="p-4 rounded-[10px]" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div className="p-2 rounded-[6px] w-fit mb-2" style={{ background: bg }}>
+              <Icon size={18} color={color} strokeWidth={1.5} />
             </div>
-            <p style={{ fontSize: 24, fontWeight: 700, color: '#111827', fontFamily: "'Sora', sans-serif" }}>
-              {value}
-            </p>
+            <p style={{ fontSize: 24, fontWeight: 700, color: '#111827', fontFamily: "'Sora', sans-serif" }}>{value}</p>
             <p style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{label}</p>
           </div>
         ))}
       </div>
 
-      {/* Search Bar */}
-      <div
-        className="flex items-center gap-2 p-4 rounded-[10px] mb-5"
-        style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-      >
-        <div
-          className="flex items-center gap-2 flex-1 max-w-[400px] rounded-[6px] px-3"
-          style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', height: 36 }}
-        >
+      {/* Search */}
+      <div className="flex items-center gap-2 p-4 rounded-[10px] mb-5" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+        <div className="flex items-center gap-2 flex-1 max-w-[400px] rounded-[6px] px-3" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', height: 36 }}>
           <Search size={14} color="#9CA3AF" strokeWidth={1.5} />
           <input
             value={search}
@@ -193,124 +178,137 @@ export function DevelopersOverview() {
         </div>
       </div>
 
-      {/* Developers Grid */}
-      <div className="space-y-5">
+      {/* Developers List */}
+      <div className="space-y-3">
         {filteredDevelopers.map((developerName) => {
-          const developer = PROPERTY_DEVELOPERS[developerName as keyof typeof PROPERTY_DEVELOPERS];
+          const developer  = PROPERTY_DEVELOPERS[developerName];
           const isExpanded = selectedDeveloper === developerName;
+          const totals     = computeTotals(developer.compounds);
+          const vals       = metricValues(totals);
+
+          // Shared layout constants
+          const LEFT_W  = 260; // px — name / compound name column
+          const ICON_W  = 28;  // px — chevron / spacer at end
 
           return (
-            <div
-              key={developerName}
-              className="rounded-[10px] overflow-hidden"
-              style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-            >
-              {/* Developer Header */}
+            <div key={developerName} className="rounded-[10px] overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+
+              {/* ── Developer Row ── */}
               <div
-                className="p-5 cursor-pointer hover:bg-gray-50 transition-colors"
+                className="flex items-center px-5 py-4 cursor-pointer hover:bg-gray-50 transition-colors"
                 onClick={() => setSelectedDeveloper(isExpanded ? null : developerName)}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-[8px]" style={{ background: '#EEF2FF' }}>
-                      <Building2 size={24} color="#1B4FD8" strokeWidth={1.5} />
-                    </div>
-                    <div>
-                      <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: 16, fontWeight: 600, color: '#111827' }}>
-                        {developerName}
-                      </h3>
-                      <p style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>
-                        {developer.totalCompounds} compounds · {developer.totalUnits} units
-                      </p>
-                    </div>
+                {/* Left: icon + name */}
+                <div className="flex items-center gap-3 shrink-0" style={{ width: LEFT_W }}>
+                  <div className="p-2.5 rounded-[8px]" style={{ background: '#EEF2FF' }}>
+                    <Building2 size={20} color="#1B4FD8" strokeWidth={1.5} />
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-6">
-                      <div className="text-center">
-                        <p style={{ fontSize: 11, color: '#6B7280', fontWeight: 500 }}>COMPOUNDS</p>
-                        <p style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginTop: 2 }}>
-                          {developer.totalCompounds}
-                        </p>
-                      </div>
-                      <div className="text-center">
-                        <p style={{ fontSize: 11, color: '#6B7280', fontWeight: 500 }}>UNITS</p>
-                        <p style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginTop: 2 }}>
-                          {developer.totalUnits}
-                        </p>
-                      </div>
-                    </div>
-                    <ChevronRight
-                      size={20}
-                      color="#9CA3AF"
-                      className={`transition-transform ${isExpanded ? 'rotate-90' : ''}`}
-                    />
+                  <div>
+                    <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, color: '#111827' }}>
+                      {developerName}
+                    </h3>
+                    <p style={{ fontSize: 12, color: '#6B7280', marginTop: 1 }}>
+                      {developer.totalCompounds} compound{developer.totalCompounds !== 1 ? 's' : ''}
+                    </p>
                   </div>
+                </div>
+
+                {/* Metrics: evenly spread across remaining width */}
+                <div className="flex flex-1 justify-around items-center">
+                  {METRIC_COLS.map((col, i) => (
+                    <div key={col.key} className="text-center">
+                      <p style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, letterSpacing: '0.05em' }}>{col.label}</p>
+                      <p style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginTop: 1 }}>{vals[i]}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Chevron */}
+                <div className="shrink-0 flex justify-end" style={{ width: ICON_W }}>
+                  <ChevronRight
+                    size={18}
+                    color="#9CA3AF"
+                    className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
+                  />
                 </div>
               </div>
 
-              {/* Compounds List */}
+              {/* ── Expanded: per-compound breakdown ── */}
               {isExpanded && (
                 <div className="border-t" style={{ borderColor: '#E5E7EB' }}>
-                  {developer.compounds.map((compound, idx) => (
-                    <div
-                      key={compound.name}
-                      className="p-5 hover:bg-blue-50/30 transition-colors"
-                      style={{ borderTop: idx > 0 ? '1px solid #F3F4F6' : 'none' }}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <h4 style={{ fontSize: 15, fontWeight: 600, color: '#111827' }}>
-                              {compound.name}
-                            </h4>
-                            <span
-                              className="px-2 py-0.5 rounded-[4px]"
-                              style={{
-                                fontSize: 10,
-                                fontWeight: 600,
-                                textTransform: 'uppercase',
-                                background: compound.status === 'active' ? '#DCFCE7' : '#FEF3C7',
-                                color: compound.status === 'active' ? '#16A34A' : '#D97706',
-                              }}
-                            >
-                              {compound.status}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 mb-3">
-                            <MapPin size={13} color="#6B7280" strokeWidth={1.5} />
-                            <span style={{ fontSize: 12, color: '#6B7280' }}>{compound.location}</span>
-                          </div>
 
-                          {/* Stats Grid */}
-                          <div className="grid grid-cols-5 gap-4">
-                            {[
-                              { label: 'Units', value: compound.units, icon: Home },
-                              { label: 'Occupancy', value: `${compound.occupancy}%`, icon: TrendingUp },
-                              { label: 'Residents', value: compound.activeResidents, icon: Users },
-                              { label: 'Vehicles', value: compound.vehicles, icon: Car },
-                              { label: 'Parking Slots', value: compound.parkingSlots, icon: MapPin },
-                            ].map(({ label, value, icon: Icon }) => (
-                              <div
-                                key={label}
-                                className="p-3 rounded-[6px]"
-                                style={{ background: '#F9FAFB', border: '1px solid #E5E7EB' }}
+                  {/* Column header row */}
+                  <div
+                    className="flex items-center px-5 py-2"
+                    style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}
+                  >
+                    <div className="shrink-0" style={{ width: LEFT_W }}>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: '#9CA3AF', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                        COMPOUND
+                      </span>
+                    </div>
+                    <div className="flex flex-1 justify-around items-center">
+                      {METRIC_COLS.map((col) => (
+                        <div key={col.key} className="flex items-center justify-center gap-1">
+                          <col.icon size={11} color="#9CA3AF" strokeWidth={1.5} />
+                          <span style={{ fontSize: 10, fontWeight: 600, color: '#9CA3AF', letterSpacing: '0.05em' }}>{col.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ width: ICON_W }} />
+                  </div>
+
+                  {/* Compound rows */}
+                  {developer.compounds.map((compound, idx) => {
+                    const cVals = compoundValues(compound);
+                    return (
+                      <div
+                        key={compound.name}
+                        className="flex items-center px-5 py-3.5 hover:bg-blue-50/30 transition-colors"
+                        style={{ borderTop: idx > 0 ? '1px solid #F3F4F6' : 'none' }}
+                      >
+                        {/* Compound name + location */}
+                        <div className="flex items-center gap-3 shrink-0" style={{ width: LEFT_W }}>
+                          <div className="p-1.5 rounded-[6px]" style={{ background: '#F4F5F7' }}>
+                            <Building size={13} color="#6B7280" strokeWidth={1.5} />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{compound.name}</span>
+                              <span
+                                className="px-1.5 py-0.5 rounded-[4px]"
+                                style={{
+                                  fontSize: 9,
+                                  fontWeight: 600,
+                                  textTransform: 'uppercase',
+                                  background: compound.status === 'active' ? '#DCFCE7' : '#FEF3C7',
+                                  color:      compound.status === 'active' ? '#16A34A' : '#D97706',
+                                }}
                               >
-                                <div className="flex items-center gap-2 mb-1">
-                                  <Icon size={12} color="#6B7280" strokeWidth={1.5} />
-                                  <p style={{ fontSize: 10, color: '#6B7280', fontWeight: 500, textTransform: 'uppercase' }}>
-                                    {label}
-                                  </p>
-                                </div>
-                                <p style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>
-                                  {typeof value === 'number' ? value.toLocaleString() : value}
-                                </p>
-                              </div>
-                            ))}
+                                {compound.status === 'construction' ? 'Under Construction' : compound.status}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <MapPin size={11} color="#9CA3AF" strokeWidth={1.5} />
+                              <span style={{ fontSize: 11, color: '#6B7280' }}>{compound.location}</span>
+                            </div>
                           </div>
                         </div>
+
+                        {/* Metric values aligned under headers */}
+                        <div className="flex flex-1 justify-around items-center">
+                          {cVals.map((v, i) => (
+                            <div key={i} className="text-center">
+                              <span style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>{v}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div style={{ width: ICON_W }} />
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
+
                 </div>
               )}
             </div>
@@ -321,10 +319,7 @@ export function DevelopersOverview() {
       {/* Add Developer Modal */}
       {showAddDeveloperModal && (
         <div className="fixed inset-0 bg-white/30 backdrop-blur-md flex items-center justify-center z-50">
-          <div
-            className="rounded-[12px] w-full max-w-lg overflow-hidden"
-            style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', maxHeight: '90vh' }}
-          >
+          <div className="rounded-[12px] w-full max-w-lg overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', maxHeight: '90vh' }}>
             <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: '#E5E7EB' }}>
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-[8px]" style={{ background: '#EEF2FF' }}>
@@ -334,104 +329,44 @@ export function DevelopersOverview() {
                   Add New Developer
                 </h2>
               </div>
-              <button
-                onClick={() => setShowAddDeveloperModal(false)}
-                className="p-1 rounded-[6px] hover:bg-gray-100 transition-colors"
-              >
+              <button onClick={() => setShowAddDeveloperModal(false)} className="p-1 rounded-[6px] hover:bg-gray-100 transition-colors">
                 <X size={18} color="#6B7280" />
               </button>
             </div>
 
-            <div className="px-6 py-5 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 140px)' }}>
-              <div className="space-y-4">
+            <div className="px-6 py-5 overflow-y-auto space-y-4" style={{ maxHeight: 'calc(90vh - 140px)' }}>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>Developer Name *</label>
+                <input type="text" placeholder="e.g., Palm Hills Developments" className="w-full px-3 py-2 rounded-[6px] outline-none" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>Website</label>
+                <input type="url" placeholder="https://example.com" className="w-full px-3 py-2 rounded-[6px] outline-none" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
-                    Developer Name *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., Palm Hills Developments"
-                    className="w-full px-3 py-2 rounded-[6px] outline-none focus:ring-2 focus:ring-blue-500"
-                    style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }}
-                  />
+                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>Contact Email</label>
+                  <input type="email" placeholder="contact@developer.com" className="w-full px-3 py-2 rounded-[6px] outline-none" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }} />
                 </div>
-
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
-                    Website
-                  </label>
-                  <input
-                    type="url"
-                    placeholder="https://example.com"
-                    className="w-full px-3 py-2 rounded-[6px] outline-none focus:ring-2 focus:ring-blue-500"
-                    style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }}
-                  />
+                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>Contact Phone</label>
+                  <input type="tel" placeholder="+20 100 234 5678" className="w-full px-3 py-2 rounded-[6px] outline-none" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }} />
                 </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
-                      Contact Email
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="contact@developer.com"
-                      className="w-full px-3 py-2 rounded-[6px] outline-none focus:ring-2 focus:ring-blue-500"
-                      style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
-                      Contact Phone
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="+20 100 234 5678"
-                      className="w-full px-3 py-2 rounded-[6px] outline-none focus:ring-2 focus:ring-blue-500"
-                      style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
-                    Description
-                  </label>
-                  <textarea
-                    placeholder="Brief description of the property developer..."
-                    rows={3}
-                    className="w-full px-3 py-2 rounded-[6px] outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                    style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }}
-                  />
-                </div>
-
-                <div
-                  className="p-3 rounded-[6px]"
-                  style={{ background: '#FEF3C7', border: '1px solid #FDE047' }}
-                >
-                  <p style={{ fontSize: 11, color: '#92400E' }}>
-                    ℹ️ After creating the developer, you can add compounds to it.
-                  </p>
-                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>Description</label>
+                <textarea placeholder="Brief description of the property developer..." rows={3} className="w-full px-3 py-2 rounded-[6px] outline-none resize-none" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB', fontSize: 14, color: '#111827' }} />
+              </div>
+              <div className="p-3 rounded-[6px]" style={{ background: '#FEF3C7', border: '1px solid #FDE047' }}>
+                <p style={{ fontSize: 11, color: '#92400E' }}>After creating the developer, you can add compounds to it.</p>
               </div>
             </div>
 
             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t" style={{ borderColor: '#E5E7EB' }}>
-              <button
-                onClick={() => setShowAddDeveloperModal(false)}
-                className="px-4 py-2 rounded-[8px] transition-colors hover:bg-gray-100"
-                style={{ fontSize: 14, fontWeight: 500, color: '#374151' }}
-              >
+              <button onClick={() => setShowAddDeveloperModal(false)} className="px-4 py-2 rounded-[8px] hover:bg-gray-100 transition-colors" style={{ fontSize: 14, fontWeight: 500, color: '#374151' }}>
                 Cancel
               </button>
-              <button
-                onClick={() => {
-                  alert('Developer created successfully! In a real application, this would save to your database.');
-                  setShowAddDeveloperModal(false);
-                }}
-                className="px-4 py-2 rounded-[8px] transition-colors hover:opacity-90"
-                style={{ background: '#1B4FD8', color: '#FFFFFF', fontSize: 14, fontWeight: 500 }}
-              >
+              <button onClick={() => setShowAddDeveloperModal(false)} className="px-4 py-2 rounded-[8px] hover:opacity-90 transition-opacity" style={{ background: '#1B4FD8', color: '#FFFFFF', fontSize: 14, fontWeight: 500 }}>
                 Add Developer
               </button>
             </div>

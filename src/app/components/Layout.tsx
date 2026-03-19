@@ -19,14 +19,12 @@ import {
   Settings,
   Bell,
   Search,
-  ChevronDown,
   ChevronRight,
   LogOut,
   Megaphone,
   LayoutDashboard,
-  Check,
 } from 'lucide-react';
-import { useCompound, DEVELOPERS, COMPOUNDS_BY_DEVELOPER } from '../context/CompoundContext';
+import { useCompound } from '../context/CompoundContext';
 
 type NavItem =
   | { section: string }
@@ -39,7 +37,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Developers',  icon: Building,  path: '/developers' },
   { label: 'Compounds',   icon: Layers,    path: '/compounds' },
   { label: 'Buildings',   icon: Building2, path: '/buildings' },
-  { label: 'Units',       icon: Home,      path: '/units' },
+  { label: 'Occupancy',   icon: Home,      path: '/units' },
 
   { section: 'Residents & Vehicles' },
   { label: 'Residents', icon: Users, path: '/residents' },
@@ -72,7 +70,7 @@ const BREADCRUMB_MAP: Record<string, string> = {
   '/access': 'Access Control',
   '/visitor-rules': 'Visitor Rules',
   '/services': 'Services',
-  '/units': 'Units',
+  '/units': 'Occupancy',
   '/residents': 'Residents',
   '/vehicles': 'Vehicles',
   '/staff': 'Staff Management',
@@ -86,15 +84,9 @@ const BREADCRUMB_MAP: Record<string, string> = {
 export function Layout() {
   const location = useLocation();
   const [notifOpen, setNotifOpen] = useState(false);
-  const [devOpen, setDevOpen] = useState(false);
-  const [compoundOpen, setCompoundOpen] = useState(false);
   const currentPage = BREADCRUMB_MAP[location.pathname] ?? 'Dashboard';
 
-  const {
-    activeDeveloper, setActiveDeveloper,
-    activeCompound, setActiveCompound,
-    availableCompounds,
-  } = useCompound();
+  const { activeCompound } = useCompound();
 
   return (
     <div className="flex h-screen w-full overflow-hidden" style={{ background: '#F4F5F7' }}>
@@ -122,74 +114,6 @@ export function Layout() {
             </span>
           </div>
 
-          {/* Developer selector (KMPNDI staff only — will be hidden for property developers) */}
-          <div className="relative mb-2">
-            <button
-              onClick={() => { setDevOpen(!devOpen); setCompoundOpen(false); }}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-left transition-colors hover:bg-gray-50"
-              style={{ background: '#F4F5F7', border: '1px solid #E5E7EB' }}
-            >
-              <div className="min-w-0">
-                <p style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 1 }}>Developer</p>
-                <p style={{ fontSize: 13, color: '#111827', fontWeight: 500 }} className="truncate">{activeDeveloper}</p>
-              </div>
-              <ChevronDown size={13} color="#9CA3AF" className={`flex-shrink-0 transition-transform ${devOpen ? 'rotate-180' : ''}`} />
-            </button>
-            {devOpen && (
-              <div
-                className="absolute left-0 right-0 top-full mt-1 rounded-[8px] shadow-lg z-50 overflow-hidden"
-                style={{ background: '#FFFFFF', border: '1px solid #E5E7EB' }}
-              >
-                {DEVELOPERS.map((dev) => (
-                  <button
-                    key={dev}
-                    onClick={() => { setActiveDeveloper(dev); setDevOpen(false); }}
-                    className="w-full text-left px-3 py-2.5 hover:bg-blue-50 transition-colors flex items-center justify-between"
-                    style={{ fontSize: 13, color: '#111827', borderBottom: '1px solid #F3F4F6' }}
-                  >
-                    <div>
-                      <p style={{ fontWeight: dev === activeDeveloper ? 600 : 400, color: dev === activeDeveloper ? '#1B4FD8' : '#111827' }}>{dev}</p>
-                      <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1 }}>{COMPOUNDS_BY_DEVELOPER[dev].length} compounds</p>
-                    </div>
-                    {dev === activeDeveloper && <Check size={14} color="#1B4FD8" strokeWidth={2.5} />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Active compound selector */}
-          <div className="relative">
-            <button
-              onClick={() => { setCompoundOpen(!compoundOpen); setDevOpen(false); }}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-left transition-colors"
-              style={{ background: '#EEF2FF', border: '1px solid #C7D7F9' }}
-            >
-              <div className="min-w-0">
-                <p style={{ fontSize: 10, color: '#1B4FD8', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 1 }}>Active Compound</p>
-                <p style={{ fontSize: 13, color: '#1B4FD8', fontWeight: 600 }} className="truncate">{activeCompound}</p>
-              </div>
-              <ChevronDown size={13} color="#1B4FD8" className={`flex-shrink-0 transition-transform ${compoundOpen ? 'rotate-180' : ''}`} />
-            </button>
-            {compoundOpen && (
-              <div
-                className="absolute left-0 right-0 top-full mt-1 rounded-[8px] shadow-lg z-50 overflow-hidden"
-                style={{ background: '#FFFFFF', border: '1px solid #E5E7EB' }}
-              >
-                {availableCompounds.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => { setActiveCompound(c); setCompoundOpen(false); }}
-                    className="w-full text-left px-3 py-2.5 hover:bg-blue-50 transition-colors flex items-center justify-between"
-                    style={{ fontSize: 13, borderBottom: '1px solid #F3F4F6' }}
-                  >
-                    <span style={{ fontWeight: c === activeCompound ? 600 : 400, color: c === activeCompound ? '#1B4FD8' : '#111827' }}>{c}</span>
-                    {c === activeCompound && <Check size={14} color="#1B4FD8" strokeWidth={2.5} />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Navigation */}

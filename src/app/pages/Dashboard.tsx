@@ -6,88 +6,98 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
   BarChart,
   Bar,
 } from 'recharts';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
-  TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  Users,
-  Car,
-  Activity,
   Building2,
-  Home,
-  Zap,
-  XCircle,
-  Clock,
   ArrowRight,
   ChevronDown,
-  Layers,
 } from 'lucide-react';
 
 // ─── Static chart data ────────────────────────────────────────────────────────
 
 const entryDataDaily = [
-  { day: 'Mon', entries: 245, exits: 218 },
-  { day: 'Tue', entries: 312, exits: 287 },
-  { day: 'Wed', entries: 278, exits: 251 },
-  { day: 'Thu', entries: 389, exits: 356 },
-  { day: 'Fri', entries: 421, exits: 398 },
-  { day: 'Sat', entries: 198, exits: 176 },
-  { day: 'Sun', entries: 267, exits: 241 },
+  { day: 'Mon', entries: 245, exits: 218, guests: 42, services: 15, complaints: 3 },
+  { day: 'Tue', entries: 312, exits: 287, guests: 58, services: 22, complaints: 5 },
+  { day: 'Wed', entries: 278, exits: 251, guests: 49, services: 18, complaints: 2 },
+  { day: 'Thu', entries: 389, exits: 356, guests: 71, services: 27, complaints: 7 },
+  { day: 'Fri', entries: 421, exits: 398, guests: 83, services: 31, complaints: 4 },
+  { day: 'Sat', entries: 198, exits: 176, guests: 35, services: 12, complaints: 1 },
+  { day: 'Sun', entries: 267, exits: 241, guests: 54, services: 19, complaints: 3 },
 ];
 
 const entryDataHourly = [
-  { hour: '12 AM', entries: 8, exits: 12 },
-  { hour: '1 AM', entries: 5, exits: 8 },
-  { hour: '2 AM', entries: 3, exits: 5 },
-  { hour: '3 AM', entries: 2, exits: 3 },
-  { hour: '4 AM', entries: 4, exits: 3 },
-  { hour: '5 AM', entries: 12, exits: 8 },
-  { hour: '6 AM', entries: 45, exits: 28 },
-  { hour: '7 AM', entries: 98, exits: 67 },
-  { hour: '8 AM', entries: 156, exits: 134 },
-  { hour: '9 AM', entries: 89, exits: 78 },
-  { hour: '10 AM', entries: 54, exits: 48 },
-  { hour: '11 AM', entries: 42, exits: 38 },
-  { hour: '12 PM', entries: 67, exits: 89 },
-  { hour: '1 PM', entries: 58, exits: 72 },
-  { hour: '2 PM', entries: 71, exits: 63 },
-  { hour: '3 PM', entries: 82, exits: 58 },
-  { hour: '4 PM', entries: 94, exits: 67 },
-  { hour: '5 PM', entries: 134, exits: 98 },
-  { hour: '6 PM', entries: 167, exits: 142 },
-  { hour: '7 PM', entries: 112, exits: 156 },
-  { hour: '8 PM', entries: 78, exits: 98 },
-  { hour: '9 PM', entries: 52, exits: 67 },
-  { hour: '10 PM', entries: 34, exits: 45 },
-  { hour: '11 PM', entries: 18, exits: 28 },
+  { hour: '12 AM', entries: 8,   exits: 12,  guests: 1,  services: 0, complaints: 0 },
+  { hour: '1 AM',  entries: 5,   exits: 8,   guests: 0,  services: 0, complaints: 0 },
+  { hour: '2 AM',  entries: 3,   exits: 5,   guests: 0,  services: 0, complaints: 0 },
+  { hour: '3 AM',  entries: 2,   exits: 3,   guests: 0,  services: 0, complaints: 0 },
+  { hour: '4 AM',  entries: 4,   exits: 3,   guests: 0,  services: 0, complaints: 0 },
+  { hour: '5 AM',  entries: 12,  exits: 8,   guests: 2,  services: 1, complaints: 0 },
+  { hour: '6 AM',  entries: 45,  exits: 28,  guests: 6,  services: 3, complaints: 0 },
+  { hour: '7 AM',  entries: 98,  exits: 67,  guests: 14, services: 7, complaints: 1 },
+  { hour: '8 AM',  entries: 156, exits: 134, guests: 22, services: 11,complaints: 2 },
+  { hour: '9 AM',  entries: 89,  exits: 78,  guests: 12, services: 8, complaints: 1 },
+  { hour: '10 AM', entries: 54,  exits: 48,  guests: 9,  services: 5, complaints: 0 },
+  { hour: '11 AM', entries: 42,  exits: 38,  guests: 7,  services: 4, complaints: 1 },
+  { hour: '12 PM', entries: 67,  exits: 89,  guests: 11, services: 6, complaints: 0 },
+  { hour: '1 PM',  entries: 58,  exits: 72,  guests: 10, services: 5, complaints: 0 },
+  { hour: '2 PM',  entries: 71,  exits: 63,  guests: 13, services: 7, complaints: 1 },
+  { hour: '3 PM',  entries: 82,  exits: 58,  guests: 15, services: 9,  complaints: 1 },
+  { hour: '4 PM',  entries: 94,  exits: 67,  guests: 18, services: 10, complaints: 2 },
+  { hour: '5 PM',  entries: 134, exits: 98,  guests: 27, services: 14, complaints: 2 },
+  { hour: '6 PM',  entries: 167, exits: 142, guests: 35, services: 18, complaints: 3 },
+  { hour: '7 PM',  entries: 112, exits: 156, guests: 24, services: 12, complaints: 1 },
+  { hour: '8 PM',  entries: 78,  exits: 98,  guests: 16, services: 8,  complaints: 1 },
+  { hour: '9 PM',  entries: 52,  exits: 67,  guests: 10, services: 5,  complaints: 0 },
+  { hour: '10 PM', entries: 34,  exits: 45,  guests: 6,  services: 3,  complaints: 0 },
+  { hour: '11 PM', entries: 18,  exits: 28,  guests: 3,  services: 1,  complaints: 0 },
 ];
 
-const rushHoursData = [
-  { hour: '6 AM', traffic: 45 },
-  { hour: '7 AM', traffic: 98 },
-  { hour: '8 AM', traffic: 156 },
-  { hour: '9 AM', traffic: 89 },
-  { hour: '5 PM', traffic: 134 },
-  { hour: '6 PM', traffic: 167 },
-  { hour: '7 PM', traffic: 112 },
+// ─── Contract Activity data ───────────────────────────────────────────────────
+
+const contractDataAll = [
+  { label: 'Palm Hills K',     sold: 120, rented: 85  },
+  { label: 'Palm Hills Oct',   sold: 94,  rented: 72  },
+  { label: 'Sodic West',       sold: 148, rented: 103 },
+  { label: 'Sodic East',       sold: 88,  rented: 67  },
+  { label: 'Hyde Park',        sold: 210, rented: 145 },
+  { label: 'Hyde Park NC',     sold: 172, rented: 128 },
+  { label: 'NZ Phase II',      sold: 64,  rented: 48  },
+  { label: 'NZ Phase III',     sold: 38,  rented: 29  },
 ];
 
-const entriesSparkline = [{ v: 180 }, { v: 220 }, { v: 195 }, { v: 280 }, { v: 245 }, { v: 310 }, { v: 267 }];
-const visitorsSparkline = [{ v: 98 }, { v: 115 }, { v: 89 }, { v: 132 }, { v: 110 }, { v: 128 }, { v: 124 }];
-const alertsSparkline   = [{ v: 1 }, { v: 0 }, { v: 2 }, { v: 1 }, { v: 3 }, { v: 2 }, { v: 3 }];
+const contractDataYear = [
+  { label: 'Jan', sold: 18, rented: 12 },
+  { label: 'Feb', sold: 22, rented: 15 },
+  { label: 'Mar', sold: 31, rented: 20 },
+  { label: 'Apr', sold: 27, rented: 19 },
+  { label: 'May', sold: 35, rented: 24 },
+  { label: 'Jun', sold: 42, rented: 31 },
+  { label: 'Jul', sold: 38, rented: 28 },
+  { label: 'Aug', sold: 29, rented: 22 },
+  { label: 'Sep', sold: 33, rented: 25 },
+  { label: 'Oct', sold: 45, rented: 34 },
+  { label: 'Nov', sold: 52, rented: 38 },
+  { label: 'Dec', sold: 61, rented: 44 },
+];
 
-const parkingDonut = [
-  { name: 'Occupied', value: 78 },
-  { name: 'Available', value: 22 },
+const contractDataMonth = [
+  { label: 'Wk 1', sold: 11, rented: 8  },
+  { label: 'Wk 2', sold: 14, rented: 10 },
+  { label: 'Wk 3', sold: 9,  rented: 7  },
+  { label: 'Wk 4', sold: 16, rented: 11 },
+];
+
+const contractDataDay = [
+  { label: 'Mon', sold: 3, rented: 2 },
+  { label: 'Tue', sold: 5, rented: 3 },
+  { label: 'Wed', sold: 2, rented: 2 },
+  { label: 'Thu', sold: 6, rented: 4 },
+  { label: 'Fri', sold: 4, rented: 3 },
+  { label: 'Sat', sold: 1, rented: 1 },
+  { label: 'Sun', sold: 2, rented: 1 },
 ];
 
 // ─── Compound data ────────────────────────────────────────────────────────────
@@ -126,405 +136,120 @@ const ALL_COMPOUNDS: Compound[] = [
 
 const DEVELOPERS = Object.keys(DEVELOPER_COLORS);
 
-type AlertItem = {
-  id: number;
-  severity: 'critical' | 'warning';
-  title: string;
-  compound: string;
-  compoundId: string;
-  developer: string;
-  detail: string;
-  time: string;
-};
 
-const ALL_ALERTS: AlertItem[] = [
-  { id: 1, severity: 'critical', title: 'Gate Offline: South Entrance',      compound: 'Palm Hills Katameya', compoundId: 'phk',  developer: 'Palm Hills', detail: 'South Gate Camera has been offline for 12 minutes. Manual inspection required.', time: '12 min ago' },
-  { id: 2, severity: 'critical', title: 'Unauthorized Access Attempt',        compound: 'Palm Hills Katameya', compoundId: 'phk',  developer: 'Palm Hills', detail: 'Vehicle XPT-1190 denied entry at main gate — 3rd attempt in 30 minutes.',       time: '6 min ago' },
-  { id: 3, severity: 'warning',  title: 'Pool QR Scanner Degraded',           compound: 'Sodic West',          compoundId: 'sw',   developer: 'Sodic',      detail: 'Last ping 45 seconds ago. Scanner may be unresponsive.',                        time: '45 sec ago' },
-];
-
-const recentActivity = [
-  { plate: 'QAB-2841', unit: 'A-101', time: '09:54 AM', type: 'Resident',  status: 'allow' },
-  { plate: 'DFC-7712', unit: 'C-302', time: '09:51 AM', type: 'Visitor',   status: 'allow' },
-  { plate: 'HMN-5503', unit: 'B-207', time: '09:49 AM', type: 'Delivery',  status: 'allow' },
-  { plate: 'XPT-1190', unit: '—',     time: '09:46 AM', type: 'Unknown',   status: 'deny'  },
-  { plate: 'LKV-3388', unit: 'D-410', time: '09:43 AM', type: 'Resident',  status: 'allow' },
-  { plate: 'RWS-9021', unit: 'A-204', time: '09:40 AM', type: 'Visitor',   status: 'allow' },
-  { plate: 'TYU-6654', unit: '—',     time: '09:37 AM', type: 'Unknown',   status: 'deny'  },
-  { plate: 'BNQ-4471', unit: 'E-501', time: '09:35 AM', type: 'Resident',  status: 'allow' },
-];
-
-const systemHealth = [
-  { name: 'Main Gate Camera',  type: 'Camera',     zone: 'Zone A', status: 'online',  ping: '2s ago'  },
-  { name: 'North Barrier',     type: 'Barrier',    zone: 'Zone A', status: 'online',  ping: '1s ago'  },
-  { name: 'Pool QR Scanner',   type: 'QR Scanner', zone: 'Zone B', status: 'warning', ping: '45s ago' },
-  { name: 'South Gate Camera', type: 'Camera',     zone: 'Zone B', status: 'offline', ping: '12m ago' },
-  { name: 'Delivery Entrance', type: 'NFC Reader', zone: 'Street', status: 'online',  ping: '3s ago'  },
-  { name: 'West LPR Camera',   type: 'LPR Camera', zone: 'Pool',   status: 'online',  ping: '1s ago'  },
-];
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function Sparkline({ data, color }: { data: { v: number }[]; color: string }) {
-  return (
-    <LineChart width={80} height={32} data={data}>
-      <Line type="monotone" dataKey="v" stroke={color} strokeWidth={1.5} dot={false} />
-    </LineChart>
-  );
-}
-
-function KPICard({
-  label, value, sub, trend, trendUp, icon: Icon, iconColor, iconBg, children,
-}: {
-  label: string; value: string; sub: string; trend?: string; trendUp?: boolean;
-  icon: React.ElementType; iconColor: string; iconBg: string; children?: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-[10px] p-5 flex flex-col gap-3" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-      <div className="flex items-start justify-between">
-        <div>
-          <p style={{ fontSize: 12, fontWeight: 500, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</p>
-          <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 28, fontWeight: 700, color: '#111827', marginTop: 4, lineHeight: 1 }}>{value}</p>
-          <p style={{ fontSize: 12, color: '#6B7280', marginTop: 4 }}>{sub}</p>
-        </div>
-        <div className="flex flex-col items-end gap-2">
-          <div className="flex items-center justify-center rounded-[8px]" style={{ width: 36, height: 36, background: iconBg }}>
-            <Icon size={18} color={iconColor} strokeWidth={2} />
-          </div>
-          {trend && (
-            <div className="flex items-center gap-1">
-              {trendUp ? <TrendingUp size={12} color="#16A34A" /> : <TrendingDown size={12} color="#DC2626" />}
-              <span style={{ fontSize: 11, fontWeight: 500, color: trendUp ? '#16A34A' : '#DC2626' }}>{trend}</span>
-            </div>
-          )}
-        </div>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-// ─── Filter bar ───────────────────────────────────────────────────────────────
-
-type FilterState = {
-  developer: string | null;   // null = all
-  compound: string | null;    // compound id, null = all / developer-level
-};
-
-function FilterBar({
-  filter,
-  onChange,
-}: {
-  filter: FilterState;
-  onChange: (f: FilterState) => void;
-}) {
-  const [compoundOpen, setCompoundOpen] = useState(false);
-
-  const activeDevCompounds = filter.developer
-    ? ALL_COMPOUNDS.filter((c) => c.developer === filter.developer)
-    : [];
-
-  const selectedCompoundName = filter.compound
-    ? ALL_COMPOUNDS.find((c) => c.id === filter.compound)?.name
-    : null;
-
-  function selectDeveloper(dev: string | null) {
-    onChange({ developer: dev, compound: null });
-    setCompoundOpen(false);
-  }
-
-  function selectCompound(id: string | null) {
-    onChange({ ...filter, compound: id });
-    setCompoundOpen(false);
-  }
-
-  return (
-    <div
-      className="rounded-[10px] p-4 mb-5 flex flex-wrap items-center gap-3"
-      style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-    >
-      {/* Label */}
-      <div className="flex items-center gap-1.5 mr-1">
-        <Layers size={14} color="#6B7280" strokeWidth={1.5} />
-        <span style={{ fontSize: 12, fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          Scope
-        </span>
-      </div>
-
-      {/* Divider */}
-      <div style={{ width: 1, height: 20, background: '#E5E7EB' }} />
-
-      {/* All pill */}
-      <button
-        onClick={() => selectDeveloper(null)}
-        className="px-3 py-1.5 rounded-[6px] transition-all"
-        style={{
-          fontSize: 12,
-          fontWeight: 600,
-          background: !filter.developer ? '#1B4FD8' : '#F4F5F7',
-          color: !filter.developer ? '#FFFFFF' : '#374151',
-          border: !filter.developer ? '1px solid #1B4FD8' : '1px solid #E5E7EB',
-        }}
-      >
-        All Compounds
-      </button>
-
-      {/* Developer pills */}
-      {DEVELOPERS.map((dev) => {
-        const { color, bg } = DEVELOPER_COLORS[dev];
-        const isActive = filter.developer === dev;
-        return (
-          <button
-            key={dev}
-            onClick={() => selectDeveloper(isActive ? null : dev)}
-            className="px-3 py-1.5 rounded-[6px] transition-all flex items-center gap-1.5"
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              background: isActive ? bg : '#F4F5F7',
-              color: isActive ? color : '#374151',
-              border: isActive ? `1px solid ${color}` : '1px solid #E5E7EB',
-            }}
-          >
-            <span
-              className="rounded-full"
-              style={{ width: 6, height: 6, background: isActive ? color : '#9CA3AF', flexShrink: 0 }}
-            />
-            {dev}
-            <span
-              className="rounded-full px-1.5"
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                background: isActive ? color : '#E5E7EB',
-                color: isActive ? '#fff' : '#6B7280',
-              }}
-            >
-              {ALL_COMPOUNDS.filter((c) => c.developer === dev).length}
-            </span>
-          </button>
-        );
-      })}
-
-      {/* Compound dropdown — shown only when a developer is selected */}
-      {filter.developer && (
-        <>
-          <div style={{ width: 1, height: 20, background: '#E5E7EB' }} />
-          <div className="relative">
-            <button
-              onClick={() => setCompoundOpen((v) => !v)}
-              className="px-3 py-1.5 rounded-[6px] transition-all flex items-center gap-2"
-              style={{
-                fontSize: 12,
-                fontWeight: 500,
-                background: filter.compound ? '#EEF2FF' : '#F4F5F7',
-                color: filter.compound ? '#1B4FD8' : '#374151',
-                border: filter.compound ? '1px solid #1B4FD8' : '1px solid #E5E7EB',
-              }}
-            >
-              <Building2 size={13} strokeWidth={1.5} />
-              {selectedCompoundName ?? 'All in ' + filter.developer}
-              <ChevronDown size={13} />
-            </button>
-
-            {compoundOpen && (
-              <div
-                className="absolute left-0 top-full mt-1 rounded-[8px] shadow-lg z-50 overflow-hidden"
-                style={{ minWidth: 220, background: '#FFFFFF', border: '1px solid #E5E7EB' }}
-              >
-                {/* "All in developer" option */}
-                <button
-                  onClick={() => selectCompound(null)}
-                  className="w-full text-left px-3 py-2.5 hover:bg-blue-50 transition-colors flex items-center justify-between"
-                  style={{ fontSize: 13, color: !filter.compound ? '#1B4FD8' : '#111827', fontWeight: !filter.compound ? 600 : 400, borderBottom: '1px solid #F3F4F6' }}
-                >
-                  All in {filter.developer}
-                  {!filter.compound && <span style={{ fontSize: 10, background: '#EEF2FF', color: '#1B4FD8', padding: '1px 6px', borderRadius: 4, fontWeight: 700 }}>ACTIVE</span>}
-                </button>
-                {activeDevCompounds.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => selectCompound(c.id)}
-                    className="w-full text-left px-3 py-2.5 hover:bg-blue-50 transition-colors flex items-center justify-between"
-                    style={{ fontSize: 13, color: filter.compound === c.id ? '#1B4FD8' : '#111827', fontWeight: filter.compound === c.id ? 600 : 400 }}
-                  >
-                    <div>
-                      <span>{c.name}</span>
-                      <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 6 }}>{c.units} units</span>
-                    </div>
-                    {filter.compound === c.id && (
-                      <span style={{ fontSize: 10, background: '#EEF2FF', color: '#1B4FD8', padding: '1px 6px', borderRadius: 4, fontWeight: 700 }}>ACTIVE</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </>
-      )}
-
-      {/* Active filter summary */}
-      {(filter.developer || filter.compound) && (
-        <div className="ml-auto flex items-center gap-2">
-          <span
-            className="px-2 py-1 rounded-[5px]"
-            style={{ fontSize: 11, color: '#6B7280', background: '#F4F5F7' }}
-          >
-            Showing: {selectedCompoundName ?? (filter.developer ? `All ${filter.developer} compounds` : 'All')}
-          </span>
-          <button
-            onClick={() => onChange({ developer: null, compound: null })}
-            className="px-2 py-1 rounded-[5px] transition-colors hover:bg-red-50"
-            style={{ fontSize: 11, color: '#DC2626', border: '1px solid #FEE2E2' }}
-          >
-            Clear
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export function Dashboard() {
   const [activityView, setActivityView] = useState<'daily' | 'hourly'>('daily');
-  const [filter, setFilter] = useState<FilterState>({ developer: null, compound: null });
+  const [communityPeriod, setCommunityPeriod] = useState<'all' | 'year' | 'month' | 'day' | 'hour'>('day');
+  const [contractPeriod, setContractPeriod] = useState<'all' | 'year' | 'month' | 'day'>('day');
+  const [selectedDeveloper, setSelectedDeveloper] = useState<string | null>(null);
+  const [devDropdownOpen, setDevDropdownOpen] = useState(false);
 
   const entryData = activityView === 'daily' ? entryDataDaily : entryDataHourly;
   const xAxisKey  = activityView === 'daily' ? 'day' : 'hour';
 
-  // ── Derived filtered data ──────────────────────────────────────────────────
+  const contractData =
+    contractPeriod === 'year'  ? contractDataYear  :
+    contractPeriod === 'month' ? contractDataMonth :
+    contractPeriod === 'day'   ? contractDataDay   :
+    contractDataAll;
 
-  const filteredCompounds = useMemo(() => {
-    if (filter.compound) return ALL_COMPOUNDS.filter((c) => c.id === filter.compound);
-    if (filter.developer) return ALL_COMPOUNDS.filter((c) => c.developer === filter.developer);
-    return ALL_COMPOUNDS;
-  }, [filter]);
+  const contractTotals = contractData.reduce(
+    (acc, d) => ({ sold: acc.sold + d.sold, rented: acc.rented + d.rented }),
+    { sold: 0, rented: 0 }
+  );
 
-  const filteredAlerts = useMemo(() => {
-    if (filter.compound) return ALL_ALERTS.filter((a) => a.compoundId === filter.compound);
-    if (filter.developer) return ALL_ALERTS.filter((a) => a.developer === filter.developer);
-    return ALL_ALERTS;
-  }, [filter]);
-
-  // Aggregated KPIs from filtered compounds
-  const kpi = useMemo(() => ({
-    entries:  filteredCompounds.reduce((s, c) => s + c.entriesToday, 0),
-    visitors: filteredCompounds.reduce((s, c) => s + c.activeVisitors, 0),
-    units:    filteredCompounds.reduce((s, c) => s + c.units, 0),
-    alerts:   filteredAlerts.length,
-    critical: filteredAlerts.filter((a) => a.severity === 'critical').length,
-    warning:  filteredAlerts.filter((a) => a.severity === 'warning').length,
-    avgOcc:   filteredCompounds.length
-      ? Math.round(filteredCompounds.reduce((s, c) => s + c.occupancy, 0) / filteredCompounds.length)
-      : 0,
-  }), [filteredCompounds, filteredAlerts]);
-
-  const scopeLabel = useMemo(() => {
-    if (filter.compound) return ALL_COMPOUNDS.find((c) => c.id === filter.compound)?.name ?? '';
-    if (filter.developer) return `${filter.developer} compounds`;
-    return 'all compounds';
-  }, [filter]);
+  const filteredCompounds = selectedDeveloper
+    ? ALL_COMPOUNDS.filter((c) => c.developer === selectedDeveloper)
+    : ALL_COMPOUNDS;
 
   return (
-    <div className="p-6 max-w-[1376px] mx-auto" onClick={() => {}}>
-      {/* Page Header */}
-      <div className="mb-5">
-        <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: 20, fontWeight: 700, color: '#111827' }}>Overview</h1>
-        <p style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>
-          Real-time snapshot — {scopeLabel}
-        </p>
-      </div>
+    <div className="p-6 max-w-[1376px] mx-auto" onClick={() => setDevDropdownOpen(false)}>
 
-      {/* ── Filter Bar ────────────────────────────────────────────────────── */}
-      <FilterBar filter={filter} onChange={setFilter} />
-
-      {/* ── KPI Cards ─────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-4 gap-4 mb-5">
-        <KPICard
-          label="Total Entries Today"
-          value={kpi.entries.toLocaleString()}
-          sub={`across ${filteredCompounds.length} compound${filteredCompounds.length !== 1 ? 's' : ''}`}
-          trend="+12.1%"
-          trendUp
-          icon={Activity}
-          iconColor="#1B4FD8"
-          iconBg="#EEF2FF"
-        >
-          <Sparkline data={entriesSparkline} color="#1B4FD8" />
-        </KPICard>
-
-        <KPICard
-          label="Active Visitors"
-          value={kpi.visitors.toLocaleString()}
-          sub={`across ${kpi.units.toLocaleString()} units`}
-          trend="+8.3%"
-          trendUp
-          icon={Users}
-          iconColor="#16A34A"
-          iconBg="#DCFCE7"
-        >
-          <Sparkline data={visitorsSparkline} color="#16A34A" />
-        </KPICard>
-
-        <KPICard
-          label="Avg Parking Occupancy"
-          value={`${kpi.avgOcc}%`}
-          sub="across selected scope"
-          trend="-3.2%"
-          trendUp={false}
-          icon={Car}
-          iconColor="#D97706"
-          iconBg="#FEF3C7"
-        >
-          <div className="flex items-center gap-3">
-            <PieChart width={48} height={48}>
-              <Pie
-                data={[{ value: kpi.avgOcc }, { value: 100 - kpi.avgOcc }]}
-                cx={20} cy={20} innerRadius={14} outerRadius={22}
-                dataKey="value" startAngle={90} endAngle={-270} strokeWidth={0}
-              >
-                <Cell fill="#1B4FD8" />
-                <Cell fill="#E5E7EB" />
-              </Pie>
-            </PieChart>
-            <div>
-              <p style={{ fontSize: 11, color: '#6B7280' }}><span className="inline-block w-2 h-2 rounded-full mr-1" style={{ background: '#1B4FD8' }} />Occupied</p>
-              <p style={{ fontSize: 11, color: '#6B7280' }}><span className="inline-block w-2 h-2 rounded-full mr-1" style={{ background: '#E5E7EB' }} />Available</p>
-            </div>
-          </div>
-        </KPICard>
-
-        <KPICard
-          label="Active Alerts"
-          value={String(kpi.alerts)}
-          sub={`${kpi.critical} critical, ${kpi.warning} warning`}
-          trend={kpi.alerts > 0 ? `+${kpi.alerts}` : '0'}
-          trendUp={false}
-          icon={AlertTriangle}
-          iconColor="#DC2626"
-          iconBg="#FEE2E2"
-        >
-          <Sparkline data={alertsSparkline} color="#DC2626" />
-        </KPICard>
-      </div>
-
-      {/* ── Compounds Overview ─────────────────────────────────────────────── */}
+      {/* ── Compounds Overview ───────────────────────────────────────────── */}
       <div
         className="rounded-[10px] p-5 mb-5"
         style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
       >
         <div className="flex items-center justify-between mb-4">
-          <div>
+          <div className="flex items-center gap-3">
             <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, color: '#111827' }}>Compounds Overview</h2>
-            <p style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>
-              {filteredCompounds.length} compound{filteredCompounds.length !== 1 ? 's' : ''} — {scopeLabel}
-            </p>
+            {/* Developers dropdown */}
+            <div className="relative" onClick={(e) => e.stopPropagation()}>
+              <button
+                onClick={() => setDevDropdownOpen((v) => !v)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-[6px] transition-colors hover:bg-gray-50"
+                style={{
+                  fontSize: 12, fontWeight: 500,
+                  background: selectedDeveloper ? DEVELOPER_COLORS[selectedDeveloper].bg : '#F4F5F7',
+                  color: selectedDeveloper ? DEVELOPER_COLORS[selectedDeveloper].color : '#374151',
+                  border: selectedDeveloper ? `1px solid ${DEVELOPER_COLORS[selectedDeveloper].color}` : '1px solid #E5E7EB',
+                }}
+              >
+                {selectedDeveloper ? (
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: DEVELOPER_COLORS[selectedDeveloper].color }} />
+                ) : null}
+                {selectedDeveloper ?? 'Developers'}
+                <ChevronDown
+                  size={13}
+                  style={{
+                    transform: devDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease',
+                  }}
+                />
+              </button>
+              {devDropdownOpen && (
+                <div
+                  className="absolute left-0 top-full mt-1 rounded-[8px] shadow-lg z-50 overflow-hidden"
+                  style={{ minWidth: 200, background: '#FFFFFF', border: '1px solid #E5E7EB' }}
+                >
+                  <button
+                    onClick={() => { setSelectedDeveloper(null); setDevDropdownOpen(false); }}
+                    className="w-full text-left px-4 py-2.5 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                    style={{ fontSize: 13, fontWeight: selectedDeveloper === null ? 600 : 400, color: selectedDeveloper === null ? '#1B4FD8' : '#111827', borderBottom: '1px solid #F3F4F6' }}
+                  >
+                    All Developers
+                    {selectedDeveloper === null && <span style={{ fontSize: 10, background: '#EEF2FF', color: '#1B4FD8', padding: '1px 6px', borderRadius: 4, fontWeight: 700 }}>ACTIVE</span>}
+                  </button>
+                  {DEVELOPERS.map((dev) => {
+                    const { color, bg } = DEVELOPER_COLORS[dev];
+                    const isActive = selectedDeveloper === dev;
+                    return (
+                      <button
+                        key={dev}
+                        onClick={() => { setSelectedDeveloper(dev); setDevDropdownOpen(false); }}
+                        className="w-full text-left px-4 py-2.5 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                        style={{ fontSize: 13, fontWeight: isActive ? 600 : 400, color: isActive ? color : '#111827' }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
+                          {dev}
+                          <span style={{ fontSize: 11, color: '#9CA3AF' }}>{ALL_COMPOUNDS.filter((c) => c.developer === dev).length} compounds</span>
+                        </div>
+                        {isActive && <span style={{ fontSize: 10, background: bg, color, padding: '1px 6px', borderRadius: 4, fontWeight: 700 }}>ACTIVE</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
-          <button className="flex items-center gap-1" style={{ fontSize: 12, color: '#1B4FD8', fontWeight: 500 }}>
-            Manage compounds <ArrowRight size={12} />
-          </button>
+          <div className="flex items-center gap-3">
+            {selectedDeveloper && (
+              <button
+                onClick={() => setSelectedDeveloper(null)}
+                className="px-2.5 py-1 rounded-[5px] transition-colors hover:bg-red-50"
+                style={{ fontSize: 11, color: '#DC2626', border: '1px solid #FEE2E2' }}
+              >
+                Clear
+              </button>
+            )}
+            <button className="flex items-center gap-1" style={{ fontSize: 12, color: '#1B4FD8', fontWeight: 500 }}>
+              Manage compounds <ArrowRight size={12} />
+            </button>
+          </div>
         </div>
 
         {filteredCompounds.length === 0 ? (
@@ -584,152 +309,59 @@ export function Dashboard() {
         )}
       </div>
 
-      {/* ── Active Alerts ──────────────────────────────────────────────────── */}
-      {filteredAlerts.length > 0 && (
-        <div
-          className="rounded-[10px] overflow-hidden mb-5"
-          style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-        >
-          <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: '#E5E7EB' }}>
-            <div>
-              <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, color: '#111827' }}>Active Alerts</h2>
-              <p style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>Issues requiring attention</p>
-            </div>
-            <div className="flex items-center gap-2">
-              {kpi.critical > 0 && (
-                <span className="px-2 py-0.5 rounded-[4px]" style={{ fontSize: 11, fontWeight: 600, background: '#FEE2E2', color: '#DC2626' }}>
-                  {kpi.critical} CRITICAL
-                </span>
-              )}
-              {kpi.warning > 0 && (
-                <span className="px-2 py-0.5 rounded-[4px]" style={{ fontSize: 11, fontWeight: 600, background: '#FEF3C7', color: '#D97706' }}>
-                  {kpi.warning} WARNING
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="divide-y" style={{ borderColor: '#F3F4F6' }}>
-            {filteredAlerts.map((alert) => {
-              const isCritical = alert.severity === 'critical';
-              return (
-                <div key={alert.id} className="px-5 py-4 flex items-start gap-4 hover:bg-gray-50 transition-colors cursor-pointer">
-                  <div
-                    className="flex items-center justify-center rounded-full flex-shrink-0 mt-0.5"
-                    style={{ width: 32, height: 32, background: isCritical ? '#FEE2E2' : '#FEF3C7' }}
-                  >
-                    {isCritical
-                      ? <XCircle size={16} color="#DC2626" strokeWidth={2} />
-                      : <AlertTriangle size={16} color="#D97706" strokeWidth={2} />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span
-                        className="px-1.5 py-0.5 rounded-[4px]"
-                        style={{
-                          fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em',
-                          background: isCritical ? '#FEE2E2' : '#FEF3C7',
-                          color: isCritical ? '#DC2626' : '#D97706',
-                        }}
-                      >
-                        {alert.severity}
-                      </span>
-                      <span style={{ fontSize: 11, color: '#9CA3AF' }}>{alert.compound}</span>
-                      <span style={{ fontSize: 11, color: '#C4C9D4' }}>·</span>
-                      <span style={{ fontSize: 11, color: '#9CA3AF' }}>{alert.developer}</span>
-                    </div>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{alert.title}</p>
-                    <p style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{alert.detail}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                    <div className="flex items-center gap-1" style={{ color: '#9CA3AF' }}>
-                      <Clock size={11} />
-                      <span style={{ fontSize: 11 }}>{alert.time}</span>
-                    </div>
-                    <button
-                      className="px-3 py-1 rounded-[5px] transition-colors hover:bg-gray-100"
-                      style={{ fontSize: 11, fontWeight: 500, background: '#F4F5F7', color: '#374151', border: '1px solid #E5E7EB' }}
-                    >
-                      Resolve
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* No-alerts banner when filter shows a clean scope */}
-      {filteredAlerts.length === 0 && filteredCompounds.length > 0 && (
-        <div
-          className="rounded-[10px] px-5 py-4 mb-5 flex items-center gap-3"
-          style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}
-        >
-          <div className="flex items-center justify-center rounded-full" style={{ width: 28, height: 28, background: '#DCFCE7' }}>
-            <Activity size={14} color="#16A34A" strokeWidth={2} />
-          </div>
-          <div>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#15803D' }}>No active alerts</p>
-            <p style={{ fontSize: 12, color: '#16A34A' }}>All systems in the selected scope are running normally.</p>
-          </div>
-        </div>
-      )}
-
-      {/* ── Entry Activity + Rush Hours ────────────────────────────────────── */}
+      {/* ── Community Activity + Contract Activity ─────────────────────────── */}
       <div className="grid gap-5 mb-5" style={{ gridTemplateColumns: '3fr 2fr' }}>
-        {/* Entry Activity */}
+        {/* Community Activity */}
         <div className="rounded-[10px] p-5" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, color: '#111827' }}>Entry Activity</h2>
+              <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, color: '#111827' }}>Community Activity</h2>
               <p style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>
-                {activityView === 'daily' ? 'Last 7 days — entries vs exits' : 'Today — hourly breakdown'}
+                {communityPeriod === 'hour' ? 'Today — hourly activity breakdown' : communityPeriod === 'day' ? 'Today — community events' : communityPeriod === 'month' ? 'This month — community events' : communityPeriod === 'year' ? 'This year — community events' : 'All-time — community events'}
               </p>
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1 p-1 rounded-[6px]" style={{ background: '#F4F5F7' }}>
-                {(['daily', 'hourly'] as const).map((v) => (
-                  <button
-                    key={v}
-                    onClick={() => setActivityView(v)}
-                    className="px-3 py-1 rounded-[4px] transition-all capitalize"
-                    style={{
-                      fontSize: 12, fontWeight: 500,
-                      background: activityView === v ? '#FFFFFF' : 'transparent',
-                      color: activityView === v ? '#111827' : '#6B7280',
-                      boxShadow: activityView === v ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                    }}
-                  >
-                    {v}
-                  </button>
+              {/* Period filter pills */}
+              <div className="flex items-center gap-1 p-1 rounded-[6px]" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB' }}>
+                {(['All', 'Year', 'Month', 'Day', 'Hour'] as const).map((label) => {
+                  const val = label.toLowerCase() as typeof communityPeriod;
+                  const isActive = communityPeriod === val;
+                  return (
+                    <button
+                      key={label}
+                      onClick={() => {
+                        setCommunityPeriod(val);
+                        setActivityView(val === 'hour' ? 'hourly' : 'daily');
+                      }}
+                      className="px-3 py-1 rounded-[4px] transition-all"
+                      style={{
+                        fontSize: 12, fontWeight: isActive ? 600 : 400,
+                        background: isActive ? '#1B4FD8' : 'transparent',
+                        color: isActive ? '#FFFFFF' : '#6B7280',
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              {/* Legend */}
+              <div className="flex items-center gap-3 flex-wrap">
+                {[
+                  { label: 'Entries',    color: '#1B4FD8' },
+                  { label: 'Exits',      color: '#16A34A' },
+                  { label: 'Guests',     color: '#D97706' },
+                  { label: 'Services',   color: '#7C3AED' },
+                  { label: 'Complaints', color: '#DC2626' },
+                ].map((l) => (
+                  <div key={l.label} className="flex items-center gap-1.5">
+                    <span className="w-3 h-0.5 rounded" style={{ background: l.color }} />
+                    <span style={{ fontSize: 12, color: '#6B7280' }}>{l.label}</span>
+                  </div>
                 ))}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-0.5 rounded" style={{ background: '#1B4FD8' }} />
-                <span style={{ fontSize: 12, color: '#6B7280' }}>Entries</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-0.5 rounded" style={{ background: '#16A34A' }} />
-                <span style={{ fontSize: 12, color: '#6B7280' }}>Exits</span>
               </div>
             </div>
           </div>
-
-          {activityView === 'hourly' && (
-            <div className="flex items-center gap-3 mb-4 px-3 py-2 rounded-[6px]" style={{ background: '#FEF3C7', border: '1px solid #FDE047' }}>
-              <Zap size={14} color="#92400E" strokeWidth={2} />
-              <div className="flex items-center gap-4 flex-1">
-                <div>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#92400E', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Morning Rush: </span>
-                  <span style={{ fontSize: 11, color: '#78350F' }}>7 AM – 9 AM · avg 127 vehicles/hr</span>
-                </div>
-                <div>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#92400E', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Evening Rush: </span>
-                  <span style={{ fontSize: 11, color: '#78350F' }}>5 PM – 7 PM · avg 138 vehicles/hr</span>
-                </div>
-              </div>
-            </div>
-          )}
 
           <ResponsiveContainer width="100%" height={activityView === 'hourly' ? 240 : 200}>
             <AreaChart data={entryData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
@@ -741,6 +373,18 @@ export function Dashboard() {
                 <linearGradient id="exitsGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#16A34A" stopOpacity={0.10} />
                   <stop offset="95%" stopColor="#16A34A" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="guestsGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#D97706" stopOpacity={0.12} />
+                  <stop offset="95%" stopColor="#D97706" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="servicesGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.12} />
+                  <stop offset="95%" stopColor="#7C3AED" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="complaintsGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#DC2626" stopOpacity={0.12} />
+                  <stop offset="95%" stopColor="#DC2626" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
@@ -760,51 +404,75 @@ export function Dashboard() {
                 labelStyle={{ fontWeight: 600, marginBottom: 4 }}
                 cursor={{ stroke: '#E5E7EB', strokeWidth: 1 }}
               />
-              <Area type="monotone" dataKey="entries" stroke="#1B4FD8" strokeWidth={2} fill="url(#entriesGrad)" />
-              <Area type="monotone" dataKey="exits"   stroke="#16A34A" strokeWidth={2} fill="url(#exitsGrad)" />
+              <Area type="monotone" dataKey="entries"    stroke="#1B4FD8" strokeWidth={2} fill="url(#entriesGrad)" />
+              <Area type="monotone" dataKey="exits"      stroke="#16A34A" strokeWidth={2} fill="url(#exitsGrad)" />
+              <Area type="monotone" dataKey="guests"     stroke="#D97706" strokeWidth={2} fill="url(#guestsGrad)" />
+              <Area type="monotone" dataKey="services"   stroke="#7C3AED" strokeWidth={2} fill="url(#servicesGrad)" />
+              <Area type="monotone" dataKey="complaints" stroke="#DC2626" strokeWidth={2} fill="url(#complaintsGrad)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Rush Hours */}
+        {/* Contract Activity */}
         <div className="rounded-[10px] p-5" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <div className="mb-4">
-            <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, color: '#111827' }}>Rush Hours</h2>
-            <p style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>Peak traffic windows — today</p>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, color: '#111827' }}>Contract Activity</h2>
+              <p style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>
+                {contractPeriod === 'day' ? 'Sold vs rented — this week' : contractPeriod === 'month' ? 'Sold vs rented — this month' : contractPeriod === 'year' ? 'Sold vs rented — this year' : 'All-time sold vs rented'}
+              </p>
+            </div>
+            <div className="flex items-center gap-1 p-1 rounded-[6px]" style={{ background: '#F4F5F7', border: '1px solid #E5E7EB' }}>
+              {(['All', 'Year', 'Month', 'Day'] as const).map((label) => {
+                const val = label.toLowerCase() as typeof contractPeriod;
+                const isActive = contractPeriod === val;
+                return (
+                  <button
+                    key={label}
+                    onClick={() => setContractPeriod(val)}
+                    className="px-3 py-1 rounded-[4px] transition-all"
+                    style={{
+                      fontSize: 12, fontWeight: isActive ? 600 : 400,
+                      background: isActive ? '#1B4FD8' : 'transparent',
+                      color: isActive ? '#FFFFFF' : '#6B7280',
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="flex gap-2 mb-4">
             {[
-              { label: 'Morning Peak', time: '8:00 AM', value: '156 vehicles', color: '#1B4FD8', bg: '#EEF2FF' },
-              { label: 'Evening Peak', time: '6:00 PM', value: '167 vehicles', color: '#7C3AED', bg: '#EDE9FE' },
+              { label: 'Sold Units',   value: contractTotals.sold,   color: '#1B4FD8', bg: '#EEF2FF' },
+              { label: 'Rented Units', value: contractTotals.rented, color: '#7C3AED', bg: '#EDE9FE' },
             ].map((p) => (
               <div key={p.label} className="flex-1 rounded-[8px] px-3 py-2.5" style={{ background: p.bg }}>
                 <p style={{ fontSize: 10, fontWeight: 600, color: p.color, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{p.label}</p>
-                <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 16, fontWeight: 700, color: '#111827', marginTop: 2 }}>{p.time}</p>
-                <p style={{ fontSize: 11, color: '#6B7280' }}>{p.value}</p>
+                <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 22, fontWeight: 700, color: '#111827', marginTop: 2 }}>{p.value}</p>
+                <p style={{ fontSize: 11, color: '#6B7280' }}>units in selected period</p>
               </div>
             ))}
           </div>
 
           <ResponsiveContainer width="100%" height={160}>
-            <BarChart data={rushHoursData} margin={{ top: 0, right: 0, bottom: 0, left: -28 }}>
+            <BarChart data={contractData} margin={{ top: 0, right: 0, bottom: 0, left: -28 }} barGap={2} barCategoryGap="30%">
               <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
-              <XAxis dataKey="hour" tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 10, fill: '#9CA3AF' }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ background: '#111827', border: 'none', borderRadius: 6, color: '#fff', fontSize: 12, padding: '8px 12px' }}
                 cursor={{ fill: '#F3F4F6' }}
               />
-              <Bar dataKey="traffic" radius={[4, 4, 0, 0]}>
-                {rushHoursData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.traffic >= 150 ? '#1B4FD8' : entry.traffic >= 100 ? '#7C3AED' : '#E5E7EB'} />
-                ))}
-              </Bar>
+              <Bar dataKey="sold"   name="Sold"   fill="#1B4FD8" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="rented" name="Rented" fill="#7C3AED" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
 
           <div className="flex items-center gap-4 mt-3">
-            {[{ label: 'Peak rush', color: '#1B4FD8' }, { label: 'High traffic', color: '#7C3AED' }, { label: 'Normal', color: '#E5E7EB' }].map((l) => (
+            {[{ label: 'Sold', color: '#1B4FD8' }, { label: 'Rented', color: '#7C3AED' }].map((l) => (
               <div key={l.label} className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-sm" style={{ background: l.color }} />
                 <span style={{ fontSize: 11, color: '#6B7280' }}>{l.label}</span>
@@ -814,95 +482,6 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* ── Recent Activity + System Health ───────────────────────────────── */}
-      <div className="grid gap-4" style={{ gridTemplateColumns: '3fr 2fr' }}>
-        {/* Recent Activity */}
-        <div className="rounded-[10px] overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: '#E5E7EB' }}>
-            <div>
-              <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, color: '#111827' }}>Recent Activity</h2>
-              <p style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>Latest gate events — {scopeLabel}</p>
-            </div>
-            <button className="flex items-center gap-1" style={{ fontSize: 12, color: '#1B4FD8', fontWeight: 500 }}>
-              View all <ArrowRight size={12} />
-            </button>
-          </div>
-          <div>
-            <div className="grid px-5 py-2.5" style={{ gridTemplateColumns: '130px 80px 90px 80px 80px', borderBottom: '1px solid #F3F4F6' }}>
-              {['Plate No.', 'Unit', 'Time', 'Type', 'Status'].map((h) => (
-                <span key={h} style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</span>
-              ))}
-            </div>
-            {recentActivity.map((row, i) => (
-              <div
-                key={i}
-                className="grid px-5 py-3 hover:bg-gray-50 transition-colors cursor-pointer"
-                style={{ gridTemplateColumns: '130px 80px 90px 80px 80px', borderBottom: i < recentActivity.length - 1 ? '1px solid #F9FAFB' : 'none' }}
-              >
-                <span
-                  className="px-2 py-0.5 rounded self-center"
-                  style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 500, color: '#374151', background: '#F3F4F6', width: 'fit-content', letterSpacing: '0.05em' }}
-                >
-                  {row.plate}
-                </span>
-                <span style={{ fontSize: 13, color: '#374151', alignSelf: 'center' }}>{row.unit}</span>
-                <span style={{ fontSize: 12, color: '#6B7280', alignSelf: 'center', fontFamily: "'JetBrains Mono', monospace" }}>{row.time}</span>
-                <span style={{ fontSize: 12, color: '#6B7280', alignSelf: 'center' }}>{row.type}</span>
-                <span
-                  className="self-center px-2 py-0.5 rounded-[4px]"
-                  style={{
-                    fontSize: 11, fontWeight: 600, width: 'fit-content',
-                    background: row.status === 'allow' ? '#DCFCE7' : '#FEE2E2',
-                    color: row.status === 'allow' ? '#16A34A' : '#DC2626',
-                    textTransform: 'uppercase', letterSpacing: '0.04em',
-                  }}
-                >
-                  {row.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* System Health */}
-        <div className="rounded-[10px] overflow-hidden" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: '#E5E7EB' }}>
-            <div>
-              <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, color: '#111827' }}>System Health</h2>
-              <p style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>Hardware & device status</p>
-            </div>
-            <span className="px-2 py-0.5 rounded-[4px]" style={{ fontSize: 11, fontWeight: 600, background: '#FEE2E2', color: '#DC2626' }}>1 OFFLINE</span>
-          </div>
-          <div className="grid grid-cols-3 px-5 py-3 border-b" style={{ borderColor: '#F3F4F6' }}>
-            {[{ label: 'Online', count: 4, color: '#16A34A' }, { label: 'Warning', count: 1, color: '#D97706' }, { label: 'Offline', count: 1, color: '#DC2626' }].map((s) => (
-              <div key={s.label} className="flex flex-col items-center py-1">
-                <span style={{ fontFamily: "'Sora', sans-serif", fontSize: 20, fontWeight: 700, color: s.color }}>{s.count}</span>
-                <span style={{ fontSize: 11, color: '#6B7280' }}>{s.label}</span>
-              </div>
-            ))}
-          </div>
-          <div className="px-5 py-2">
-            {systemHealth.map((item, i) => {
-              const statusColor = item.status === 'online' ? '#16A34A' : item.status === 'warning' ? '#D97706' : '#DC2626';
-              return (
-                <div key={i} className="flex items-center justify-between py-3 border-b last:border-0" style={{ borderColor: '#F9FAFB' }}>
-                  <div className="flex items-center gap-3">
-                    <span className="rounded-full flex-shrink-0" style={{ width: 8, height: 8, background: statusColor }} />
-                    <div>
-                      <p style={{ fontSize: 13, fontWeight: 500, color: '#111827' }}>{item.name}</p>
-                      <p style={{ fontSize: 11, color: '#9CA3AF' }}>{item.type} · {item.zone}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', color: statusColor, letterSpacing: '0.04em' }}>{item.status}</p>
-                    <p style={{ fontSize: 11, color: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace" }}>{item.ping}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
